@@ -1,4 +1,5 @@
 import { Heart, Users, Heart as HandHeart, Trophy, ArrowRight, Sparkles } from 'lucide-react';
+import RedditPosts from './RedditPosts';
 
 interface HomePageProps {
   onNavigate: (tab: 'home' | 'post' | 'browse' | 'my-tasks' | 'leaderboard') => void;
@@ -42,82 +43,111 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="grid md:grid-cols-3 gap-8">
-        <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:scale-105">
-          <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-            <HandHeart className="h-8 w-8 text-primary-600" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Offer Help</h3>
-          <p className="text-gray-600 mb-6 leading-relaxed">
-            Share your skills and time with neighbors who need assistance. Every small act makes a difference.
-          </p>
-          <button
-            onClick={() => onNavigate('post')}
-            className="text-primary-600 font-semibold hover:text-primary-700 flex items-center space-x-1"
-          >
-            <span>Get Started</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
+      {/* Main Content Grid */}
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Features Section */}
+        <div className="lg:col-span-2 space-y-8">
+          <section className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                <HandHeart className="h-8 w-8 text-primary-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Offer Help</h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Share your skills and time with neighbors who need assistance. Every small act makes a difference.
+              </p>
+              <button
+                onClick={() => onNavigate('post')}
+                className="text-primary-600 font-semibold hover:text-primary-700 flex items-center space-x-1"
+              >
+                <span>Get Started</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="bg-accent-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                <Users className="h-8 w-8 text-accent-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Find Tasks</h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Discover ways to help your community. Browse available tasks and make meaningful connections.
+              </p>
+              <button
+                onClick={() => onNavigate('browse')}
+                className="text-accent-600 font-semibold hover:text-accent-700 flex items-center space-x-1"
+              >
+                <span>Browse Now</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                <Trophy className="h-8 w-8 text-yellow-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Earn Recognition</h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Build your reputation as a community helper. Earn Nudge Points and climb the leaderboard.
+              </p>
+              <button
+                onClick={() => onNavigate('leaderboard')}
+                className="text-yellow-600 font-semibold hover:text-yellow-700 flex items-center space-x-1"
+              >
+                <span>View Leaders</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                <Heart className="h-8 w-8 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Join the Community</h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Connect with like-minded neighbors on Reddit and share your mutual aid experiences.
+              </p>
+              <a
+                href="https://reddit.com/r/NeighborNudge"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-orange-600 font-semibold hover:text-orange-700 flex items-center space-x-1"
+              >
+                <span>Visit r/NeighborNudge</span>
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          </section>
+
+          {/* Stats Section */}
+          <section className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-8">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">Community Impact</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary-600 mb-2">500+</div>
+                <div className="text-gray-600">Tasks Completed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-accent-600 mb-2">200+</div>
+                <div className="text-gray-600">Active Helpers</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600 mb-2">50+</div>
+                <div className="text-gray-600">Neighborhoods</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-600 mb-2">1000+</div>
+                <div className="text-gray-600">Lives Touched</div>
+              </div>
+            </div>
+          </section>
         </div>
 
-        <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:scale-105">
-          <div className="bg-accent-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-            <Users className="h-8 w-8 text-accent-600" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Find Tasks</h3>
-          <p className="text-gray-600 mb-6 leading-relaxed">
-            Discover ways to help your community. Browse available tasks and make meaningful connections.
-          </p>
-          <button
-            onClick={() => onNavigate('browse')}
-            className="text-accent-600 font-semibold hover:text-accent-700 flex items-center space-x-1"
-          >
-            <span>Browse Now</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
+        {/* Reddit Posts Sidebar */}
+        <div className="lg:col-span-1">
+          <RedditPosts />
         </div>
-
-        <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:scale-105">
-          <div className="bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-            <Trophy className="h-8 w-8 text-yellow-600" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Earn Recognition</h3>
-          <p className="text-gray-600 mb-6 leading-relaxed">
-            Build your reputation as a community helper. Earn Nudge Points and climb the leaderboard.
-          </p>
-          <button
-            onClick={() => onNavigate('leaderboard')}
-            className="text-yellow-600 font-semibold hover:text-yellow-700 flex items-center space-x-1"
-          >
-            <span>View Leaders</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">Community Impact</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-primary-600 mb-2">500+</div>
-            <div className="text-gray-600">Tasks Completed</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-accent-600 mb-2">200+</div>
-            <div className="text-gray-600">Active Helpers</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">50+</div>
-            <div className="text-gray-600">Neighborhoods</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600 mb-2">1000+</div>
-            <div className="text-gray-600">Lives Touched</div>
-          </div>
-        </div>
-      </section>
+      </div>
 
       {/* Call to Action */}
       <section className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center">
