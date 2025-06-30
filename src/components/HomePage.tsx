@@ -1,4 +1,4 @@
-import { Heart, Users, HandHeart, Trophy, ArrowRight, Sparkles } from 'lucide-react';
+import { Heart, Users, Heart as HandHeart, Trophy, ArrowRight, Sparkles } from 'lucide-react';
 
 interface HomePageProps {
   onNavigate: (tab: 'home' | 'post' | 'browse' | 'my-tasks' | 'leaderboard') => void;
