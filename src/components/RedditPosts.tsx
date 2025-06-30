@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw } from 'lucide-react';
+import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, AlertCircle } from 'lucide-react';
 import { redditAPI, type RedditPost } from '../lib/reddit';
 
 interface RedditPostsProps {
@@ -9,6 +9,7 @@ interface RedditPostsProps {
 export default function RedditPosts({ className = '' }: RedditPostsProps) {
   const [posts, setPosts] = useState<RedditPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
@@ -18,11 +19,13 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
 
   const fetchPosts = async () => {
     setLoading(true);
+    setError(null);
     try {
       const redditPosts = await redditAPI.fetchSubredditPosts('NeighborNudge', 20);
       setPosts(redditPosts);
     } catch (error) {
       console.error('Error fetching Reddit posts:', error);
+      setError('Unable to load Reddit posts. This may be due to network connectivity or Reddit API limitations.');
     } finally {
       setLoading(false);
     }
@@ -36,11 +39,13 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
     }
 
     setIsSearching(true);
+    setError(null);
     try {
       const searchResults = await redditAPI.searchSubredditPosts('NeighborNudge', searchQuery, 20);
       setPosts(searchResults);
     } catch (error) {
       console.error('Error searching Reddit posts:', error);
+      setError('Unable to search Reddit posts. Please try again later.');
     } finally {
       setIsSearching(false);
     }
@@ -79,6 +84,28 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
               <div className="h-3 bg-gray-200 rounded w-1/4"></div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 ${className}`}>
+        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+          <MessageSquare className="h-5 w-5 text-orange-500" />
+          <span>r/NeighborNudge Posts</span>
+        </h3>
+        <div className="text-center py-8">
+          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500 text-lg mb-2">Unable to load Reddit posts</p>
+          <p className="text-gray-400 text-sm mb-4">{error}</p>
+          <button
+            onClick={fetchPosts}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );

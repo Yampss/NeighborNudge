@@ -31,11 +31,16 @@ function App() {
       
       if (error) {
         console.error('Supabase error:', error);
+        // Don't show alert for initial load failures, just log them
         return;
       }
       setTasks(data || []);
     } catch (error) {
       console.error('Error fetching tasks:', error);
+      // Only show user-facing error if it's not a network connectivity issue
+      if (error instanceof Error && !error.message.includes('Failed to fetch')) {
+        alert('Error loading tasks. Please try refreshing the page.');
+      }
     } finally {
       setLoading(false);
     }
@@ -69,18 +74,23 @@ function App() {
 
       if (error) {
         console.error('Supabase error:', error);
-        alert('Error submitting task. Please check your database connection.');
+        alert('Error submitting task. Please check your connection and try again.');
         return;
       }
 
-      // Update user points
-      const { error: pointsError } = await supabase.rpc('increment_user_points', {
-        username: taskData.proposer,
-        points: 5
-      });
+      // Update user points - handle errors gracefully
+      try {
+        const { error: pointsError } = await supabase.rpc('increment_user_points', {
+          username: taskData.proposer,
+          points: 5
+        });
 
-      if (pointsError) {
-        console.error('Error updating points:', pointsError);
+        if (pointsError) {
+          console.error('Error updating points:', pointsError);
+          // Don't fail the entire operation if points update fails
+        }
+      } catch (pointsError) {
+        console.error('Error calling increment_user_points:', pointsError);
       }
 
       setTasks(prev => [data, ...prev]);
@@ -108,6 +118,7 @@ function App() {
       fetchTasks();
     } catch (error) {
       console.error('Error claiming task:', error);
+      alert('Error claiming task. Please check your connection and try again.');
     }
   };
 
@@ -124,20 +135,26 @@ function App() {
         return;
       }
 
-      // Award points to completer
-      const { error: pointsError } = await supabase.rpc('increment_user_points', {
-        username: completerUsername,
-        points: 10
-      });
+      // Award points to completer - handle errors gracefully
+      try {
+        const { error: pointsError } = await supabase.rpc('increment_user_points', {
+          username: completerUsername,
+          points: 10
+        });
 
-      if (pointsError) {
-        console.error('Error updating points:', pointsError);
+        if (pointsError) {
+          console.error('Error updating points:', pointsError);
+          // Don't fail the entire operation if points update fails
+        }
+      } catch (pointsError) {
+        console.error('Error calling increment_user_points:', pointsError);
       }
 
       fetchTasks();
       fetchUsers();
     } catch (error) {
       console.error('Error completing task:', error);
+      alert('Error completing task. Please check your connection and try again.');
     }
   };
 
