@@ -1,4 +1,3 @@
-import React from 'react';
 import { MapPin, User, MessageCircle, Clock, CheckCircle } from 'lucide-react';
 import type { Task } from '../types';
 
