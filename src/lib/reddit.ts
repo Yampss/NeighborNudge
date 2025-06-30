@@ -1,94 +1,82 @@
-interface RedditPost {
+export interface RedditPost {
   id: string;
   title: string;
-  selftext: string;
   author: string;
-  created_utc: number;
   score: number;
   num_comments: number;
+  created_utc: number;
   url: string;
+  selftext: string;
   permalink: string;
   subreddit: string;
-  flair_text?: string;
 }
 
 class RedditAPI {
-  private clientId: string;
-  private clientSecret: string;
+  private baseUrl = '/reddit-api';
 
-  constructor() {
-    this.clientId = import.meta.env.VITE_REDDIT_CLIENT_ID || '';
-    this.clientSecret = import.meta.env.VITE_REDDIT_CLIENT_SECRET || '';
-  }
-
-  async fetchSubredditPosts(subreddit: string = 'NeighborNudge', limit: number = 25): Promise<RedditPost[]> {
+  async fetchSubredditPosts(subreddit: string, limit: number = 25): Promise<RedditPost[]> {
     try {
-      // Use the Vite proxy to avoid CORS issues
-      const response = await fetch(`/reddit-api/r/${subreddit}/new.json?limit=${limit}`, {
-        headers: {
-          'User-Agent': 'NeighborNudge/1.0.0'
-        }
-      });
-
+      const response = await fetch(`${this.baseUrl}/r/${subreddit}/hot.json?limit=${limit}`);
+      
       if (!response.ok) {
-        throw new Error(`Failed to fetch posts: ${response.statusText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+      
       const data = await response.json();
+      
+      if (!data.data || !data.data.children) {
+        throw new Error('Invalid response format from Reddit API');
+      }
       
       return data.data.children.map((child: any) => ({
         id: child.data.id,
         title: child.data.title,
-        selftext: child.data.selftext,
         author: child.data.author,
-        created_utc: child.data.created_utc,
         score: child.data.score,
         num_comments: child.data.num_comments,
+        created_utc: child.data.created_utc,
         url: child.data.url,
+        selftext: child.data.selftext,
         permalink: child.data.permalink,
-        subreddit: child.data.subreddit,
-        flair_text: child.data.link_flair_text,
+        subreddit: child.data.subreddit
       }));
     } catch (error) {
       console.error('Error fetching subreddit posts:', error);
-      return [];
+      throw new Error('Failed to fetch');
     }
   }
 
-  async searchSubredditPosts(subreddit: string = 'NeighborNudge', query: string, limit: number = 25): Promise<RedditPost[]> {
+  async searchSubredditPosts(subreddit: string, query: string, limit: number = 25): Promise<RedditPost[]> {
     try {
-      // Use the Vite proxy to avoid CORS issues
-      const response = await fetch(`/reddit-api/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&restrict_sr=1&sort=new&limit=${limit}`, {
-        headers: {
-          'User-Agent': 'NeighborNudge/1.0.0'
-        }
-      });
-
+      const response = await fetch(`${this.baseUrl}/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&restrict_sr=1&limit=${limit}`);
+      
       if (!response.ok) {
-        throw new Error(`Failed to search posts: ${response.statusText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+      
       const data = await response.json();
+      
+      if (!data.data || !data.data.children) {
+        throw new Error('Invalid response format from Reddit API');
+      }
       
       return data.data.children.map((child: any) => ({
         id: child.data.id,
         title: child.data.title,
-        selftext: child.data.selftext,
         author: child.data.author,
-        created_utc: child.data.created_utc,
         score: child.data.score,
         num_comments: child.data.num_comments,
+        created_utc: child.data.created_utc,
         url: child.data.url,
+        selftext: child.data.selftext,
         permalink: child.data.permalink,
-        subreddit: child.data.subreddit,
-        flair_text: child.data.link_flair_text,
+        subreddit: child.data.subreddit
       }));
     } catch (error) {
       console.error('Error searching subreddit posts:', error);
-      return [];
+      throw new Error('Failed to search');
     }
   }
 }
 
 export const redditAPI = new RedditAPI();
-export type { RedditPost };

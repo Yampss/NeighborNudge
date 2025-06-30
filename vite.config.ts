@@ -4,9 +4,6 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  define: {
-    global: 'globalThis'
-  },
   server: {
     proxy: {
       '/reddit-api': {
@@ -14,7 +11,15 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/reddit-api/, ''),
         headers: {
-          'User-Agent': 'NeighborNudge/1.0.0'
+          'User-Agent': 'NeighborNudge/1.0'
+        }
+      },
+      '/reddit-oauth': {
+        target: 'https://www.reddit.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/reddit-oauth/, ''),
+        headers: {
+          'User-Agent': 'NeighborNudge/1.0'
         }
       }
     }
