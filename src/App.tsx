@@ -135,15 +135,7 @@ function App() {
           <div className="text-center text-gray-600">
             <p className="mb-2">Made with ❤️ for stronger communities</p>
             <p className="text-sm">
-              Join us on{' '}
-              <a
-                href="https://reddit.com/r/NeighborNudge"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                r/NeighborNudge
-              </a>
+              Connect with your neighbors and build mutual aid networks in your area
             </p>
           </div>
         </div>
