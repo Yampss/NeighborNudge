@@ -5,8 +5,10 @@ import PostTask from './components/PostTask';
 import BrowseTasks from './components/BrowseTasks';
 import MyTasks from './components/MyTasks';
 import Leaderboard from './components/Leaderboard';
+import RedditAuth from './components/RedditAuth';
 import { supabase } from './lib/supabase';
 import type { Task, User as UserType } from './types';
+import type { RedditUser } from './lib/reddit';
 
 type TabType = 'home' | 'post' | 'browse' | 'my-tasks' | 'leaderboard';
 
@@ -16,11 +18,21 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [currentUser, setCurrentUser] = useState<string>('');
+  const [redditUser, setRedditUser] = useState<RedditUser | null>(null);
 
   useEffect(() => {
     fetchTasks();
     fetchUsers();
   }, []);
+
+  // Update currentUser when Reddit user changes
+  useEffect(() => {
+    if (redditUser) {
+      setCurrentUser(redditUser.name);
+    } else {
+      setCurrentUser('');
+    }
+  }, [redditUser]);
 
   const fetchTasks = async () => {
     try {
@@ -146,11 +158,11 @@ function App() {
       case 'home':
         return <HomePage onNavigate={setActiveTab} />;
       case 'post':
-        return <PostTask onSubmit={handleTaskSubmit} currentUser={currentUser} setCurrentUser={setCurrentUser} />;
+        return <PostTask onSubmit={handleTaskSubmit} currentUser={currentUser} setCurrentUser={setCurrentUser} redditUser={redditUser} />;
       case 'browse':
-        return <BrowseTasks tasks={tasks} loading={loading} onClaimTask={handleClaimTask} currentUser={currentUser} setCurrentUser={setCurrentUser} />;
+        return <BrowseTasks tasks={tasks} loading={loading} onClaimTask={handleClaimTask} currentUser={currentUser} setCurrentUser={setCurrentUser} redditUser={redditUser} />;
       case 'my-tasks':
-        return <MyTasks tasks={tasks} loading={loading} currentUser={currentUser} setCurrentUser={setCurrentUser} onCompleteTask={handleCompleteTask} />;
+        return <MyTasks tasks={tasks} loading={loading} currentUser={currentUser} setCurrentUser={setCurrentUser} onCompleteTask={handleCompleteTask} redditUser={redditUser} />;
       case 'leaderboard':
         return <Leaderboard users={users} loading={loading} />;
       default:
@@ -163,10 +175,15 @@ function App() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b-2 border-primary-100">
         <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-center space-x-3">
-            <Heart className="h-8 w-8 text-accent-500" />
-            <h1 className="text-3xl font-bold text-gray-900">NeighborNudge</h1>
-            <Heart className="h-8 w-8 text-primary-500" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center space-x-3 flex-1">
+              <Heart className="h-8 w-8 text-accent-500" />
+              <h1 className="text-3xl font-bold text-gray-900">NeighborNudge</h1>
+              <Heart className="h-8 w-8 text-primary-500" />
+            </div>
+            <div className="flex-shrink-0">
+              <RedditAuth onUserChange={setRedditUser} />
+            </div>
           </div>
           <p className="text-center text-gray-600 mt-2">
             Building stronger communities through mutual aid
