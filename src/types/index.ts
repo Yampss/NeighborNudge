@@ -3,9 +3,10 @@ export interface Task {
   description: string;
   location: string;
   proposer: string;
-  status: 'open' | 'completed';
+  status: 'open' | 'in_progress' | 'completed';
   contact_method: string;
   created_at: string;
+  claimer?: string;
 }
 
 export interface User {
