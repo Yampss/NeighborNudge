@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { MapPin, User, MessageCircle, Clock, CheckCircle, Play } from 'lucide-react';
 import type { Task } from '../types';
-import type { RedditUser } from '../lib/reddit';
 
 interface MyTasksProps {
   tasks: Task[];
@@ -9,10 +8,9 @@ interface MyTasksProps {
   currentUser: string;
   setCurrentUser: (user: string) => void;
   onCompleteTask: (taskId: string, completerUsername: string) => void;
-  redditUser: RedditUser | null;
 }
 
-export default function MyTasks({ tasks, loading, currentUser, setCurrentUser, onCompleteTask, redditUser }: MyTasksProps) {
+export default function MyTasks({ tasks, loading, currentUser, setCurrentUser, onCompleteTask }: MyTasksProps) {
   const [filter, setFilter] = useState<'posted' | 'claimed'>('posted');
 
   const myPostedTasks = tasks.filter(task => task.proposer === currentUser);
@@ -78,30 +76,20 @@ export default function MyTasks({ tasks, loading, currentUser, setCurrentUser, o
         </p>
 
         {/* User Input */}
-        {!redditUser && (
-          <div className="mb-6">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-              <User className="h-4 w-4 inline mr-1" />
-              Your Reddit Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              value={currentUser}
-              onChange={(e) => setCurrentUser(e.target.value)}
-              placeholder="Enter your Reddit username to see your tasks"
-              className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-          </div>
-        )}
-
-        {redditUser && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800">
-              ✓ Viewing tasks for <strong>u/{redditUser.name}</strong>
-            </p>
-          </div>
-        )}
+        <div className="mb-6">
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+            <User className="h-4 w-4 inline mr-1" />
+            Your Reddit Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            value={currentUser}
+            onChange={(e) => setCurrentUser(e.target.value)}
+            placeholder="Enter your Reddit username to see your tasks"
+            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          />
+        </div>
 
         {/* Filters */}
         <div className="flex gap-2">
@@ -132,7 +120,7 @@ export default function MyTasks({ tasks, loading, currentUser, setCurrentUser, o
       {!currentUser ? (
         <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100 text-center">
           <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg">Please enter your username or login with Reddit to see your tasks.</p>
+          <p className="text-gray-500 text-lg">Please enter your username to see your tasks.</p>
         </div>
       ) : displayTasks.length === 0 ? (
         <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100 text-center">

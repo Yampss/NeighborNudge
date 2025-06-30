@@ -1,16 +1,14 @@
 import { useState } from 'react';
 import { MapPin, User, MessageCircle, Send, AlertCircle } from 'lucide-react';
 import type { Task } from '../types';
-import type { RedditUser } from '../lib/reddit';
 
 interface PostTaskProps {
   onSubmit: (task: Omit<Task, 'task_id' | 'created_at' | 'status'>) => void;
   currentUser: string;
   setCurrentUser: (user: string) => void;
-  redditUser: RedditUser | null;
 }
 
-export default function PostTask({ onSubmit, currentUser, setCurrentUser, redditUser }: PostTaskProps) {
+export default function PostTask({ onSubmit, currentUser, setCurrentUser }: PostTaskProps) {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [contactMethod, setContactMethod] = useState('');
@@ -53,19 +51,17 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, reddit
           Share what you can offer to help your neighbors. Every act of kindness matters!
         </p>
         
-        {!redditUser && (
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-            <div className="flex items-start space-x-3">
-              <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
-              <div>
-                <h3 className="font-semibold text-orange-900">Reddit Authentication Recommended</h3>
-                <p className="text-orange-700 text-sm mt-1">
-                  For the best experience, please login with Reddit using the button in the top right corner. This will automatically fill in your username and enable future Reddit integration features.
-                </p>
-              </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-blue-900">Database Connection Required</h3>
+              <p className="text-blue-700 text-sm mt-1">
+                To save tasks, you need to connect to Supabase. Click the "Connect to Supabase" button in the top right corner to set up your database connection.
+              </p>
             </div>
           </div>
-        )}
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -78,17 +74,11 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, reddit
               id="currentUser"
               value={currentUser}
               onChange={(e) => setCurrentUser(e.target.value)}
-              placeholder={redditUser ? `Logged in as u/${redditUser.name}` : "Enter your Reddit username"}
+              placeholder="Enter your Reddit username"
               maxLength={50}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
               required
-              disabled={!!redditUser}
             />
-            {redditUser && (
-              <p className="text-sm text-green-600 mt-1">
-                ✓ Authenticated with Reddit as u/{redditUser.name}
-              </p>
-            )}
           </div>
 
           <div>

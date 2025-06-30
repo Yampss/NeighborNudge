@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw } from 'lucide-react';
-import { redditAuth, type RedditPost } from '../lib/reddit';
+import { redditAPI, type RedditPost } from '../lib/reddit';
 
 interface RedditPostsProps {
   className?: string;
@@ -19,7 +19,7 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const redditPosts = await redditAuth.fetchSubredditPosts('NeighborNudge', 20);
+      const redditPosts = await redditAPI.fetchSubredditPosts('NeighborNudge', 20);
       setPosts(redditPosts);
     } catch (error) {
       console.error('Error fetching Reddit posts:', error);
@@ -37,7 +37,7 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
 
     setIsSearching(true);
     try {
-      const searchResults = await redditAuth.searchSubredditPosts('NeighborNudge', searchQuery, 20);
+      const searchResults = await redditAPI.searchSubredditPosts('NeighborNudge', searchQuery, 20);
       setPosts(searchResults);
     } catch (error) {
       console.error('Error searching Reddit posts:', error);
