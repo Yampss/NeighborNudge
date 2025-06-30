@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LogIn, LogOut, User } from 'lucide-react';
-import { redditAuth, type RedditUser } from '../lib/reddit';
+import { redditAuth, type RedditUser } from '../lib/redditAuth';
 
 interface RedditAuthProps {
   onUserChange: (user: RedditUser | null) => void;

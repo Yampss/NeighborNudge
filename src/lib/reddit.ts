@@ -9,6 +9,7 @@ export interface RedditPost {
   selftext: string;
   permalink: string;
   subreddit: string;
+  flair_text?: string;
 }
 
 class RedditAPI {
@@ -38,7 +39,8 @@ class RedditAPI {
         url: child.data.url,
         selftext: child.data.selftext,
         permalink: child.data.permalink,
-        subreddit: child.data.subreddit
+        subreddit: child.data.subreddit,
+        flair_text: child.data.link_flair_text
       }));
     } catch (error) {
       console.error('Error fetching subreddit posts:', error);
@@ -70,7 +72,8 @@ class RedditAPI {
         url: child.data.url,
         selftext: child.data.selftext,
         permalink: child.data.permalink,
-        subreddit: child.data.subreddit
+        subreddit: child.data.subreddit,
+        flair_text: child.data.link_flair_text
       }));
     } catch (error) {
       console.error('Error searching subreddit posts:', error);
