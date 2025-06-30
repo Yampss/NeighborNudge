@@ -23,8 +23,8 @@ class RedditAPI {
 
   async fetchSubredditPosts(subreddit: string = 'NeighborNudge', limit: number = 25): Promise<RedditPost[]> {
     try {
-      // For public subreddits, we can use the JSON API without authentication
-      const response = await fetch(`https://www.reddit.com/r/${subreddit}/new.json?limit=${limit}`, {
+      // Use the Vite proxy to avoid CORS issues
+      const response = await fetch(`/reddit-api/r/${subreddit}/new.json?limit=${limit}`, {
         headers: {
           'User-Agent': 'NeighborNudge/1.0.0'
         }
@@ -57,7 +57,8 @@ class RedditAPI {
 
   async searchSubredditPosts(subreddit: string = 'NeighborNudge', query: string, limit: number = 25): Promise<RedditPost[]> {
     try {
-      const response = await fetch(`https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&restrict_sr=1&sort=new&limit=${limit}`, {
+      // Use the Vite proxy to avoid CORS issues
+      const response = await fetch(`/reddit-api/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&restrict_sr=1&sort=new&limit=${limit}`, {
         headers: {
           'User-Agent': 'NeighborNudge/1.0.0'
         }
