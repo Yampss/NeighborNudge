@@ -1,4 +1,3 @@
-import React from 'react';
 import { Trophy, Medal, Award, Star } from 'lucide-react';
 import type { User } from '../types';
 

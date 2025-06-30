@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Heart, Trophy, MapPin, User, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Heart, Trophy, Plus } from 'lucide-react';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
 import Leaderboard from './components/Leaderboard';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Lightbulb, Heart } from 'lucide-react';
 
 export default function NudgeOfTheDay() {
