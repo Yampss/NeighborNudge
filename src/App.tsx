@@ -5,7 +5,6 @@ import PostTask from './components/PostTask';
 import BrowseTasks from './components/BrowseTasks';
 import MyTasks from './components/MyTasks';
 import Leaderboard from './components/Leaderboard';
-import RedditCallback from './components/RedditCallback';
 import RedditAuthButton from './components/RedditAuthButton';
 import { supabase } from './lib/supabase';
 import type { Task, User as UserType } from './types';
@@ -19,16 +18,10 @@ function App() {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [currentUser, setCurrentUser] = useState<string>('');
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
-  const [isRedditAuthenticated, setIsRedditAuthenticated] = useState(false);
-
-  // Check if this is the Reddit callback page
-  const isRedditCallback = window.location.pathname === '/reddit-callback';
 
   useEffect(() => {
-    if (!isRedditCallback) {
-      checkConnection();
-    }
-  }, [isRedditCallback]);
+    checkConnection();
+  }, []);
 
   const checkConnection = async () => {
     try {
@@ -272,7 +265,7 @@ function App() {
           currentUser={currentUser} 
           setCurrentUser={setCurrentUser} 
           isConnected={isConnected}
-          isRedditAuthenticated={isRedditAuthenticated}
+          isRedditAuthenticated={false}
         />;
       case 'browse':
         return <BrowseTasks tasks={tasks} loading={loading} onClaimTask={handleClaimTask} currentUser={currentUser} setCurrentUser={setCurrentUser} isConnected={isConnected} />;
@@ -284,11 +277,6 @@ function App() {
         return <HomePage onNavigate={setActiveTab} />;
     }
   };
-
-  // Render Reddit callback page
-  if (isRedditCallback) {
-    return <RedditCallback />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50">
@@ -302,7 +290,7 @@ function App() {
               <Heart className="h-8 w-8 text-primary-500" />
             </div>
             <div className="flex items-center space-x-4">
-              <RedditAuthButton onAuthChange={setIsRedditAuthenticated} />
+              <RedditAuthButton />
             </div>
           </div>
           <p className="text-center text-gray-600 mt-2">
@@ -317,11 +305,6 @@ function App() {
                   : 'bg-red-100 text-red-800'
               }`}>
                 {isConnected ? '● Database Connected' : '● Database Disconnected'}
-              </span>
-            )}
-            {isRedditAuthenticated && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                ● Reddit Connected
               </span>
             )}
           </div>
