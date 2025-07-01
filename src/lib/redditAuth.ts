@@ -47,7 +47,7 @@ This task was posted through NeighborNudge - a platform for community mutual aid
     return ''; // Not needed
   }
 
-  async handleAuthCallback(code: string): Promise<boolean> {
+  async handleAuthCallback(): Promise<boolean> {
     return false; // Not needed
   }
 

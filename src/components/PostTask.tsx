@@ -18,7 +18,6 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedTask, setSubmittedTask] = useState<Task | null>(null);
   const [redditPostUrl, setRedditPostUrl] = useState<string>('');
-  const [showPreview, setShowPreview] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

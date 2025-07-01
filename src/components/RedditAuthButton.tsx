@@ -1,10 +1,6 @@
 import { ExternalLink } from 'lucide-react';
 
-interface RedditAuthButtonProps {
-  onAuthChange?: (isAuthenticated: boolean) => void;
-}
-
-export default function RedditAuthButton({ onAuthChange }: RedditAuthButtonProps) {
+export default function RedditAuthButton() {
   // Always show as not authenticated since we removed OAuth
   return (
     <a
