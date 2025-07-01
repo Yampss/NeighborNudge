@@ -280,9 +280,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-accent-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-accent-50 dark:from-black dark:via-gray-900 dark:to-black transition-colors duration-300">
       {/* Header */}
-      <header className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-lg border-b-2 border-primary-100 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300">
+      <header className="bg-white/95 dark:bg-black/95 backdrop-blur-sm shadow-lg border-b-2 border-primary-100 dark:border-gray-800 sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-center space-x-4 flex-1">
@@ -315,7 +315,7 @@ function App() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-[120px] z-40 shadow-sm transition-colors duration-300">
+      <nav className="bg-white/90 dark:bg-black/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 sticky top-[120px] z-40 shadow-sm transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex space-x-2 overflow-x-auto py-3 custom-scrollbar">
             {[
@@ -331,7 +331,7 @@ function App() {
                 className={`flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap relative group ${
                   activeTab === key
                     ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
               >
                 <Icon className={`h-5 w-5 ${activeTab === key ? 'animate-bounce' : 'group-hover:scale-110 transition-transform'}`} />
@@ -364,7 +364,7 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 mt-16 transition-colors duration-300">
+      <footer className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-800 mt-16 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4 py-10">
           <div className="text-center text-gray-600 dark:text-gray-300 transition-colors duration-300">
             <div className="flex justify-center items-center space-x-2 mb-4">

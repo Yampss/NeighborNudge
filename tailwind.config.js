@@ -34,7 +34,9 @@ export default {
           700: '#c2410c',
           800: '#9a3412',
           900: '#7c2d12',
-        }
+        },
+        // Add true black colors for dark mode
+        black: '#000000',
       },
       animation: {
         'fadeInUp': 'fadeInUp 0.6s ease-out',
