@@ -13,11 +13,14 @@ export interface RedditPost {
 }
 
 class RedditAPI {
-  private baseUrl = '/reddit-api';
-
   async fetchSubredditPosts(subreddit: string, limit: number = 25): Promise<RedditPost[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/r/${subreddit}/hot.json?limit=${limit}`);
+      // Use Reddit's JSON API directly with JSONP-like approach
+      const response = await fetch(`https://www.reddit.com/r/${subreddit}/hot.json?limit=${limit}`, {
+        headers: {
+          'User-Agent': 'NeighborNudge/1.0'
+        }
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -50,7 +53,11 @@ class RedditAPI {
 
   async searchSubredditPosts(subreddit: string, query: string, limit: number = 25): Promise<RedditPost[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&restrict_sr=1&limit=${limit}`);
+      const response = await fetch(`https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&restrict_sr=1&limit=${limit}`, {
+        headers: {
+          'User-Agent': 'NeighborNudge/1.0'
+        }
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

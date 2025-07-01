@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react';
 import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, AlertCircle } from 'lucide-react';
-import { redditAPI, type RedditPost } from '../lib/reddit';
+
+export interface RedditPost {
+  id: string;
+  title: string;
+  author: string;
+  score: number;
+  num_comments: number;
+  created_utc: number;
+  url: string;
+  selftext: string;
+  permalink: string;
+  subreddit: string;
+  flair_text?: string;
+}
 
 interface RedditPostsProps {
   className?: string;
@@ -21,11 +34,66 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
     setLoading(true);
     setError(null);
     try {
-      const redditPosts = await redditAPI.fetchSubredditPosts('NeighborNudge', 20);
+      // Try to fetch from Reddit API directly
+      const response = await fetch('https://www.reddit.com/r/NeighborNudge/hot.json?limit=20');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.data || !data.data.children) {
+        throw new Error('Invalid response format from Reddit API');
+      }
+      
+      const redditPosts = data.data.children.map((child: any) => ({
+        id: child.data.id,
+        title: child.data.title,
+        author: child.data.author,
+        score: child.data.score,
+        num_comments: child.data.num_comments,
+        created_utc: child.data.created_utc,
+        url: child.data.url,
+        selftext: child.data.selftext,
+        permalink: child.data.permalink,
+        subreddit: child.data.subreddit,
+        flair_text: child.data.link_flair_text
+      }));
+      
       setPosts(redditPosts);
     } catch (error) {
       console.error('Error fetching Reddit posts:', error);
-      setError('Unable to load Reddit posts. This may be due to network connectivity or Reddit API limitations.');
+      setError('Reddit posts are not available in the deployed version due to CORS restrictions. This feature works in development mode only.');
+      // Set some sample posts for demonstration
+      setPosts([
+        {
+          id: 'sample1',
+          title: 'Welcome to NeighborNudge Community!',
+          author: 'community_mod',
+          score: 25,
+          num_comments: 8,
+          created_utc: Date.now() / 1000 - 3600,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'This is a sample post. In development mode, you would see real Reddit posts here.',
+          permalink: '/r/NeighborNudge/comments/sample1/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Welcome'
+        },
+        {
+          id: 'sample2',
+          title: 'How to get started with mutual aid',
+          author: 'helpful_neighbor',
+          score: 18,
+          num_comments: 5,
+          created_utc: Date.now() / 1000 - 7200,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'Tips for beginners on how to help your community.',
+          permalink: '/r/NeighborNudge/comments/sample2/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Guide'
+        }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -41,11 +109,36 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
     setIsSearching(true);
     setError(null);
     try {
-      const searchResults = await redditAPI.searchSubredditPosts('NeighborNudge', searchQuery, 20);
+      const response = await fetch(`https://www.reddit.com/r/NeighborNudge/search.json?q=${encodeURIComponent(searchQuery)}&restrict_sr=1&limit=20`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.data || !data.data.children) {
+        throw new Error('Invalid response format from Reddit API');
+      }
+      
+      const searchResults = data.data.children.map((child: any) => ({
+        id: child.data.id,
+        title: child.data.title,
+        author: child.data.author,
+        score: child.data.score,
+        num_comments: child.data.num_comments,
+        created_utc: child.data.created_utc,
+        url: child.data.url,
+        selftext: child.data.selftext,
+        permalink: child.data.permalink,
+        subreddit: child.data.subreddit,
+        flair_text: child.data.link_flair_text
+      }));
+      
       setPosts(searchResults);
     } catch (error) {
       console.error('Error searching Reddit posts:', error);
-      setError('Unable to search Reddit posts. Please try again later.');
+      setError('Search is not available in the deployed version due to CORS restrictions.');
     } finally {
       setIsSearching(false);
     }
@@ -89,28 +182,6 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
     );
   }
 
-  if (error) {
-    return (
-      <div className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 ${className}`}>
-        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
-          <MessageSquare className="h-5 w-5 text-orange-500" />
-          <span>r/NeighborNudge Posts</span>
-        </h3>
-        <div className="text-center py-8">
-          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg mb-2">Unable to load Reddit posts</p>
-          <p className="text-gray-400 text-sm mb-4">{error}</p>
-          <button
-            onClick={fetchPosts}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 ${className}`}>
       <div className="flex items-center justify-between mb-4">
@@ -126,6 +197,17 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
           <RefreshCw className="h-4 w-4" />
         </button>
       </div>
+
+      {error && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+            <div>
+              <p className="text-amber-800 text-sm">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <form onSubmit={handleSearch} className="mb-6">
