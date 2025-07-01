@@ -9,9 +9,10 @@ interface BrowseTasksProps {
   onClaimTask: (taskId: string, claimerUsername: string) => void;
   currentUser: string;
   setCurrentUser: (user: string) => void;
+  isConnected: boolean | null;
 }
 
-export default function BrowseTasks({ tasks, loading, onClaimTask, currentUser, setCurrentUser }: BrowseTasksProps) {
+export default function BrowseTasks({ tasks, loading, onClaimTask, currentUser, setCurrentUser, isConnected }: BrowseTasksProps) {
   const [filter, setFilter] = useState<'all' | 'open' | 'in_progress' | 'completed'>('all');
 
   const filteredTasks = tasks.filter(task => {
@@ -126,7 +127,7 @@ export default function BrowseTasks({ tasks, loading, onClaimTask, currentUser, 
         </div>
 
         {/* Database Connection Notice */}
-        {tasks.length === 0 && !loading && (
+        {isConnected === false && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
             <div className="flex items-start space-x-3">
               <AlertCircle className="h-6 w-6 text-blue-600 mt-0.5" />
@@ -144,12 +145,18 @@ export default function BrowseTasks({ tasks, loading, onClaimTask, currentUser, 
         )}
 
         {/* Tasks List */}
-        {filteredTasks.length === 0 && tasks.length > 0 ? (
+        {isConnected === true && filteredTasks.length === 0 && tasks.length > 0 ? (
           <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100 text-center">
             <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500 text-lg">No tasks found for the selected filter.</p>
           </div>
-        ) : (
+        ) : isConnected === true && tasks.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100 text-center">
+            <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg">No tasks have been posted yet.</p>
+            <p className="text-gray-400 text-sm mt-2">Be the first to post a task and help your community!</p>
+          </div>
+        ) : isConnected === true ? (
           <div className="space-y-4">
             {filteredTasks.map((task) => (
               <div
@@ -195,7 +202,7 @@ export default function BrowseTasks({ tasks, loading, onClaimTask, currentUser, 
               </div>
             ))}
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Reddit Posts Sidebar */}

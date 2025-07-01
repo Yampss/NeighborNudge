@@ -16,11 +16,34 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [currentUser, setCurrentUser] = useState<string>('');
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
 
   useEffect(() => {
-    fetchTasks();
-    fetchUsers();
+    checkConnection();
   }, []);
+
+  const checkConnection = async () => {
+    try {
+      // Test the connection by trying to fetch from the tasks table
+      const { error } = await supabase
+        .from('tasks')
+        .select('count', { count: 'exact', head: true });
+      
+      if (error) {
+        console.error('Database connection error:', error);
+        setIsConnected(false);
+      } else {
+        setIsConnected(true);
+        // Only fetch data if connection is successful
+        fetchTasks();
+        fetchUsers();
+      }
+    } catch (error) {
+      console.error('Connection test failed:', error);
+      setIsConnected(false);
+      setLoading(false);
+    }
+  };
 
   const fetchTasks = async () => {
     try {
@@ -31,13 +54,11 @@ function App() {
       
       if (error) {
         console.error('Supabase error:', error);
-        // Don't show alert for initial load failures, just log them
         return;
       }
       setTasks(data || []);
     } catch (error) {
       console.error('Error fetching tasks:', error);
-      // Only show user-facing error if it's not a network connectivity issue
       if (error instanceof Error && !error.message.includes('Failed to fetch')) {
         alert('Error loading tasks. Please try refreshing the page.');
       }
@@ -163,9 +184,9 @@ function App() {
       case 'home':
         return <HomePage onNavigate={setActiveTab} />;
       case 'post':
-        return <PostTask onSubmit={handleTaskSubmit} currentUser={currentUser} setCurrentUser={setCurrentUser} />;
+        return <PostTask onSubmit={handleTaskSubmit} currentUser={currentUser} setCurrentUser={setCurrentUser} isConnected={isConnected} />;
       case 'browse':
-        return <BrowseTasks tasks={tasks} loading={loading} onClaimTask={handleClaimTask} currentUser={currentUser} setCurrentUser={setCurrentUser} />;
+        return <BrowseTasks tasks={tasks} loading={loading} onClaimTask={handleClaimTask} currentUser={currentUser} setCurrentUser={setCurrentUser} isConnected={isConnected} />;
       case 'my-tasks':
         return <MyTasks tasks={tasks} loading={loading} currentUser={currentUser} setCurrentUser={setCurrentUser} onCompleteTask={handleCompleteTask} />;
       case 'leaderboard':

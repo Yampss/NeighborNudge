@@ -6,9 +6,10 @@ interface PostTaskProps {
   onSubmit: (task: Omit<Task, 'task_id' | 'created_at' | 'status'>) => void;
   currentUser: string;
   setCurrentUser: (user: string) => void;
+  isConnected: boolean | null;
 }
 
-export default function PostTask({ onSubmit, currentUser, setCurrentUser }: PostTaskProps) {
+export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConnected }: PostTaskProps) {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [contactMethod, setContactMethod] = useState('');
@@ -51,17 +52,19 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser }: Post
           Share what you can offer to help your neighbors. Every act of kindness matters!
         </p>
         
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <div className="flex items-start space-x-3">
-            <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-blue-900">Database Connection Required</h3>
-              <p className="text-blue-700 text-sm mt-1">
-                To save tasks, you need to connect to Supabase. Click the "Connect to Supabase" button in the top right corner to set up your database connection.
-              </p>
+        {isConnected === false && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start space-x-3">
+              <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-blue-900">Database Connection Required</h3>
+                <p className="text-blue-700 text-sm mt-1">
+                  To save tasks, you need to connect to Supabase. Click the "Connect to Supabase" button in the top right corner to set up your database connection.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -136,7 +139,7 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser }: Post
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isConnected === false}
             className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-primary-600 hover:to-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           >
             {isSubmitting ? (
