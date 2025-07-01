@@ -46,11 +46,7 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
         url = 'https://www.reddit.com/r/NeighborNudge/hot.json?limit=20';
       }
 
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'NeighborNudge/1.0'
-        }
-      });
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -179,11 +175,7 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
         url = `https://www.reddit.com/r/NeighborNudge/search.json?q=${encodeURIComponent(searchQuery)}&restrict_sr=1&limit=20`;
       }
 
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'NeighborNudge/1.0'
-        }
-      });
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
