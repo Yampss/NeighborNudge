@@ -1,19 +1,6 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, Info } from 'lucide-react';
-
-export interface RedditPost {
-  id: string;
-  title: string;
-  author: string;
-  score: number;
-  num_comments: number;
-  created_utc: number;
-  url: string;
-  selftext: string;
-  permalink: string;
-  subreddit: string;
-  flair_text?: string;
-}
+import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, AlertCircle } from 'lucide-react';
+import { redditAPI, type RedditPost } from '../lib/reddit';
 
 interface RedditPostsProps {
   className?: string;
@@ -22,6 +9,7 @@ interface RedditPostsProps {
 export default function RedditPosts({ className = '' }: RedditPostsProps) {
   const [posts, setPosts] = useState<RedditPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
@@ -31,83 +19,13 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
 
   const fetchPosts = async () => {
     setLoading(true);
+    setError(null);
     try {
-      // Simulate loading delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Use sample data since Reddit API doesn't allow direct browser requests
-      const samplePosts = [
-        {
-          id: 'sample1',
-          title: 'Welcome to NeighborNudge Community!',
-          author: 'community_mod',
-          score: 25,
-          num_comments: 8,
-          created_utc: Date.now() / 1000 - 3600,
-          url: 'https://reddit.com/r/NeighborNudge',
-          selftext: 'Welcome to our mutual aid community! This is where neighbors help neighbors. Share your offers to help, find ways to contribute, and build stronger community connections.',
-          permalink: '/r/NeighborNudge/comments/sample1/',
-          subreddit: 'NeighborNudge',
-          flair_text: 'Welcome'
-        },
-        {
-          id: 'sample2',
-          title: 'How to get started with mutual aid',
-          author: 'helpful_neighbor',
-          score: 18,
-          num_comments: 5,
-          created_utc: Date.now() / 1000 - 7200,
-          url: 'https://reddit.com/r/NeighborNudge',
-          selftext: 'New to mutual aid? Here are some tips: Start small, be consistent, focus on your immediate community, and remember that every act of kindness matters.',
-          permalink: '/r/NeighborNudge/comments/sample2/',
-          subreddit: 'NeighborNudge',
-          flair_text: 'Guide'
-        },
-        {
-          id: 'sample3',
-          title: '[OFFER] Free tutoring for kids in math and science',
-          author: 'science_teacher',
-          score: 12,
-          num_comments: 3,
-          created_utc: Date.now() / 1000 - 10800,
-          url: 'https://reddit.com/r/NeighborNudge',
-          selftext: 'I\'m a retired science teacher offering free tutoring for elementary and middle school students. Available weekends in the downtown area.',
-          permalink: '/r/NeighborNudge/comments/sample3/',
-          subreddit: 'NeighborNudge',
-          flair_text: 'Offer'
-        },
-        {
-          id: 'sample4',
-          title: '[REQUEST] Need help moving furniture this weekend',
-          author: 'moving_neighbor',
-          score: 8,
-          num_comments: 6,
-          created_utc: Date.now() / 1000 - 14400,
-          url: 'https://reddit.com/r/NeighborNudge',
-          selftext: 'Moving to a new apartment this Saturday and could use some help with heavy furniture. Pizza and drinks provided!',
-          permalink: '/r/NeighborNudge/comments/sample4/',
-          subreddit: 'NeighborNudge',
-          flair_text: 'Request'
-        },
-        {
-          id: 'sample5',
-          title: 'Community garden project update',
-          author: 'green_thumb',
-          score: 15,
-          num_comments: 4,
-          created_utc: Date.now() / 1000 - 18000,
-          url: 'https://reddit.com/r/NeighborNudge',
-          selftext: 'Our community garden is thriving! Thanks to everyone who has contributed time, tools, and expertise. Next workday is this Sunday.',
-          permalink: '/r/NeighborNudge/comments/sample5/',
-          subreddit: 'NeighborNudge',
-          flair_text: 'Update'
-        }
-      ];
-      
-      setPosts(samplePosts);
+      const redditPosts = await redditAPI.fetchSubredditPosts('NeighborNudge', 20);
+      setPosts(redditPosts);
     } catch (error) {
       console.error('Error fetching Reddit posts:', error);
-      setPosts([]);
+      setError('Unable to load Reddit posts. This may be due to network connectivity or Reddit API limitations.');
     } finally {
       setLoading(false);
     }
@@ -121,48 +39,13 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
     }
 
     setIsSearching(true);
+    setError(null);
     try {
-      // Simulate search delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Filter sample posts based on search query
-      const allPosts = [
-        {
-          id: 'sample1',
-          title: 'Welcome to NeighborNudge Community!',
-          author: 'community_mod',
-          score: 25,
-          num_comments: 8,
-          created_utc: Date.now() / 1000 - 3600,
-          url: 'https://reddit.com/r/NeighborNudge',
-          selftext: 'Welcome to our mutual aid community! This is where neighbors help neighbors.',
-          permalink: '/r/NeighborNudge/comments/sample1/',
-          subreddit: 'NeighborNudge',
-          flair_text: 'Welcome'
-        },
-        {
-          id: 'sample2',
-          title: 'How to get started with mutual aid',
-          author: 'helpful_neighbor',
-          score: 18,
-          num_comments: 5,
-          created_utc: Date.now() / 1000 - 7200,
-          url: 'https://reddit.com/r/NeighborNudge',
-          selftext: 'New to mutual aid? Here are some tips for beginners.',
-          permalink: '/r/NeighborNudge/comments/sample2/',
-          subreddit: 'NeighborNudge',
-          flair_text: 'Guide'
-        }
-      ];
-      
-      const filteredPosts = allPosts.filter(post => 
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.selftext.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      
-      setPosts(filteredPosts);
+      const searchResults = await redditAPI.searchSubredditPosts('NeighborNudge', searchQuery, 20);
+      setPosts(searchResults);
     } catch (error) {
       console.error('Error searching Reddit posts:', error);
+      setError('Unable to search Reddit posts. Please try again later.');
     } finally {
       setIsSearching(false);
     }
@@ -206,6 +89,28 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
     );
   }
 
+  if (error) {
+    return (
+      <div className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 ${className}`}>
+        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+          <MessageSquare className="h-5 w-5 text-orange-500" />
+          <span>r/NeighborNudge Posts</span>
+        </h3>
+        <div className="text-center py-8">
+          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500 text-lg mb-2">Unable to load Reddit posts</p>
+          <p className="text-gray-400 text-sm mb-4">{error}</p>
+          <button
+            onClick={fetchPosts}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 ${className}`}>
       <div className="flex items-center justify-between mb-4">
@@ -220,18 +125,6 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
         >
           <RefreshCw className="h-4 w-4" />
         </button>
-      </div>
-
-      {/* Demo Notice */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-        <div className="flex items-start space-x-2">
-          <Info className="h-4 w-4 text-blue-600 mt-0.5" />
-          <div>
-            <p className="text-blue-800 text-sm">
-              <strong>Demo Mode:</strong> Showing sample posts. In a production environment, this would connect to Reddit's API through a backend service.
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Search */}
