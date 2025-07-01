@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, User, MessageCircle, Send, AlertCircle, ExternalLink, CheckCircle } from 'lucide-react';
+import { MapPin, User, MessageCircle, Send, AlertCircle, ExternalLink, CheckCircle, Eye } from 'lucide-react';
 import { redditAuth } from '../lib/redditAuth';
 import type { Task } from '../types';
 
@@ -18,6 +18,7 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedTask, setSubmittedTask] = useState<Task | null>(null);
   const [redditPostUrl, setRedditPostUrl] = useState<string>('');
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +66,21 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
     setSubmittedTask(null);
     setRedditPostUrl('');
   };
+
+  const generatePreviewUrl = () => {
+    if (!description.trim() || !location.trim() || !contactMethod.trim() || !currentUser.trim()) {
+      return '';
+    }
+    
+    return redditAuth.generateRedditSubmitUrl({
+      description: description.trim(),
+      location: location.trim(),
+      proposer: currentUser.trim(),
+      contact_method: contactMethod.trim()
+    });
+  };
+
+  const previewUrl = generatePreviewUrl();
 
   if (submittedTask && redditPostUrl) {
     return (
@@ -226,6 +242,33 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
               required
             />
           </div>
+
+          {/* Preview Reddit Link */}
+          {previewUrl && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <Eye className="h-5 w-5 text-orange-600 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-orange-900 mb-2">Preview Reddit Post</h3>
+                  <p className="text-orange-700 text-sm mb-3">
+                    Here's what your Reddit post will look like:
+                  </p>
+                  <a
+                    href={previewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-2 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    <span>Preview on Reddit</span>
+                  </a>
+                  <p className="text-orange-600 text-xs mt-2">
+                    This opens Reddit with your post pre-filled. You can see exactly how it will look!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"
