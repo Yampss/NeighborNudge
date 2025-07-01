@@ -6,6 +6,7 @@ import BrowseTasks from './components/BrowseTasks';
 import MyTasks from './components/MyTasks';
 import Leaderboard from './components/Leaderboard';
 import RedditAuthButton from './components/RedditAuthButton';
+import ThemeToggle from './components/ThemeToggle';
 import { supabase } from './lib/supabase';
 import type { Task, User as UserType } from './types';
 
@@ -279,9 +280,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-accent-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-accent-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b-2 border-primary-100 sticky top-0 z-50">
+      <header className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-lg border-b-2 border-primary-100 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-center space-x-4 flex-1">
@@ -290,10 +291,11 @@ function App() {
               <Heart className="h-10 w-10 text-primary-500 animate-heartBeat" />
             </div>
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <RedditAuthButton />
             </div>
           </div>
-          <p className="text-center text-gray-600 mt-3 text-lg font-medium">
+          <p className="text-center text-gray-600 dark:text-gray-300 mt-3 text-lg font-medium transition-colors duration-300">
             Building stronger communities through mutual aid ✨
           </p>
           {/* Connection Status Indicator */}
@@ -301,8 +303,8 @@ function App() {
             {isConnected !== null && (
               <span className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
                 isConnected 
-                  ? 'bg-green-100 text-green-800 shadow-sm' 
-                  : 'bg-red-100 text-red-800 shadow-sm'
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 shadow-sm' 
+                  : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 shadow-sm'
               }`}>
                 <span className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></span>
                 {isConnected ? 'Database Connected' : 'Database Disconnected'}
@@ -313,7 +315,7 @@ function App() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-[120px] z-40 shadow-sm">
+      <nav className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-[120px] z-40 shadow-sm transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex space-x-2 overflow-x-auto py-3 custom-scrollbar">
             {[
@@ -329,7 +331,7 @@ function App() {
                 className={`flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap relative group ${
                   activeTab === key
                     ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 <Icon className={`h-5 w-5 ${activeTab === key ? 'animate-bounce' : 'group-hover:scale-110 transition-transform'}`} />
@@ -345,12 +347,12 @@ function App() {
 
       {/* Global Username Notice */}
       {currentUser && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200 animate-fadeInUp">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-b border-blue-200 dark:border-blue-800 animate-fadeInUp transition-colors duration-300">
           <div className="max-w-6xl mx-auto px-4 py-3">
-            <p className="text-center text-blue-700 font-medium">
+            <p className="text-center text-blue-700 dark:text-blue-300 font-medium transition-colors duration-300">
               <Users className="h-5 w-5 inline mr-2" />
-              Logged in as: <span className="font-bold text-blue-800">u/{currentUser}</span>
-              <span className="text-blue-600 ml-3 text-sm">(This username is used across all sections)</span>
+              Logged in as: <span className="font-bold text-blue-800 dark:text-blue-200">u/{currentUser}</span>
+              <span className="text-blue-600 dark:text-blue-400 ml-3 text-sm">(This username is used across all sections)</span>
             </p>
           </div>
         </div>
@@ -362,15 +364,15 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/95 backdrop-blur-sm border-t border-gray-200 mt-16">
+      <footer className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 mt-16 transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-4 py-10">
-          <div className="text-center text-gray-600">
+          <div className="text-center text-gray-600 dark:text-gray-300 transition-colors duration-300">
             <div className="flex justify-center items-center space-x-2 mb-4">
               <Heart className="h-6 w-6 text-red-500 animate-heartBeat" />
               <p className="text-lg font-semibold">Made with love for stronger communities</p>
               <Heart className="h-6 w-6 text-red-500 animate-heartBeat" />
             </div>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-400 transition-colors duration-300">
               Connect with your neighbors and build mutual aid networks in your area
             </p>
           </div>
