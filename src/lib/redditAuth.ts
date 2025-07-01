@@ -51,7 +51,7 @@ This task was posted through NeighborNudge - a platform for community mutual aid
     return false; // Not needed
   }
 
-  async submitPost(title: string, text: string): Promise<{ success: boolean; url?: string; error?: string }> {
+  async submitPost(_title: string, _text: string): Promise<{ success: boolean; url?: string; error?: string }> {
     // Instead of actually submitting, we'll return a URL for manual posting
     return { 
       success: false, 
