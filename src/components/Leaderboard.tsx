@@ -1,4 +1,4 @@
-import { Trophy, Medal, Award, Star, Crown, Sparkles, Heart, Gift } from 'lucide-react';
+import { Trophy, Medal, Star, Crown, Sparkles, Heart, Gift } from 'lucide-react';
 import type { User } from '../types';
 
 interface LeaderboardProps {

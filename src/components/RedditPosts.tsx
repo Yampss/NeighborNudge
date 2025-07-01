@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, AlertCircle, Heart, Star } from 'lucide-react';
+import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, AlertCircle, Heart } from 'lucide-react';
 
 interface RedditPost {
   id: string;
