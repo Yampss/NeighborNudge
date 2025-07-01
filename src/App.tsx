@@ -279,32 +279,33 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-accent-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b-2 border-primary-100">
+      <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b-2 border-primary-100 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center justify-center space-x-3 flex-1">
-              <Heart className="h-8 w-8 text-accent-500" />
-              <h1 className="text-3xl font-bold text-gray-900">NeighborNudge</h1>
-              <Heart className="h-8 w-8 text-primary-500" />
+            <div className="flex items-center justify-center space-x-4 flex-1">
+              <Heart className="h-10 w-10 text-accent-500 animate-heartBeat" />
+              <h1 className="text-4xl font-bold gradient-text">NeighborNudge</h1>
+              <Heart className="h-10 w-10 text-primary-500 animate-heartBeat" />
             </div>
             <div className="flex items-center space-x-4">
               <RedditAuthButton />
             </div>
           </div>
-          <p className="text-center text-gray-600 mt-2">
-            Building stronger communities through mutual aid
+          <p className="text-center text-gray-600 mt-3 text-lg font-medium">
+            Building stronger communities through mutual aid ✨
           </p>
           {/* Connection Status Indicator */}
-          <div className="flex items-center justify-center space-x-4 mt-2">
+          <div className="flex items-center justify-center space-x-4 mt-3">
             {isConnected !== null && (
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+              <span className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
                 isConnected 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
+                  ? 'bg-green-100 text-green-800 shadow-sm' 
+                  : 'bg-red-100 text-red-800 shadow-sm'
               }`}>
-                {isConnected ? '● Database Connected' : '● Database Disconnected'}
+                <span className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></span>
+                {isConnected ? 'Database Connected' : 'Database Disconnected'}
               </span>
             )}
           </div>
@@ -312,76 +313,44 @@ function App() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <nav className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-[120px] z-40 shadow-sm">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="flex space-x-1 overflow-x-auto py-2">
-            <button
-              onClick={() => setActiveTab('home')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                activeTab === 'home'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <Home className="h-5 w-5" />
-              <span>Home</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('post')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                activeTab === 'post'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <Plus className="h-5 w-5" />
-              <span>Post Task</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('browse')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                activeTab === 'browse'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <List className="h-5 w-5" />
-              <span>Browse Tasks</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('my-tasks')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                activeTab === 'my-tasks'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <Users className="h-5 w-5" />
-              <span>My Tasks</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('leaderboard')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                activeTab === 'leaderboard'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <Trophy className="h-5 w-5" />
-              <span>Leaderboard</span>
-            </button>
+          <div className="flex space-x-2 overflow-x-auto py-3 custom-scrollbar">
+            {[
+              { key: 'home', label: 'Home', icon: Home },
+              { key: 'post', label: 'Post Task', icon: Plus },
+              { key: 'browse', label: 'Browse Tasks', icon: List },
+              { key: 'my-tasks', label: 'My Tasks', icon: Users },
+              { key: 'leaderboard', label: 'Leaderboard', icon: Trophy }
+            ].map(({ key, label, icon: Icon }) => (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key as TabType)}
+                className={`flex items-center space-x-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap relative group ${
+                  activeTab === key
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <Icon className={`h-5 w-5 ${activeTab === key ? 'animate-bounce' : 'group-hover:scale-110 transition-transform'}`} />
+                <span>{label}</span>
+                {activeTab === key && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1 w-2 h-2 bg-white rounded-full"></div>
+                )}
+              </button>
+            ))}
           </div>
         </div>
       </nav>
 
       {/* Global Username Notice */}
       {currentUser && (
-        <div className="bg-blue-50 border-b border-blue-200">
-          <div className="max-w-6xl mx-auto px-4 py-2">
-            <p className="text-center text-blue-700 text-sm">
-              <Users className="h-4 w-4 inline mr-1" />
-              Logged in as: <span className="font-semibold">u/{currentUser}</span>
-              <span className="text-blue-600 ml-2">(This username is used across all sections)</span>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200 animate-fadeInUp">
+          <div className="max-w-6xl mx-auto px-4 py-3">
+            <p className="text-center text-blue-700 font-medium">
+              <Users className="h-5 w-5 inline mr-2" />
+              Logged in as: <span className="font-bold text-blue-800">u/{currentUser}</span>
+              <span className="text-blue-600 ml-3 text-sm">(This username is used across all sections)</span>
             </p>
           </div>
         </div>
@@ -393,11 +362,15 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-16">
-        <div className="max-w-6xl mx-auto px-4 py-8">
+      <footer className="bg-white/95 backdrop-blur-sm border-t border-gray-200 mt-16">
+        <div className="max-w-6xl mx-auto px-4 py-10">
           <div className="text-center text-gray-600">
-            <p className="mb-2">Made with ❤️ for stronger communities</p>
-            <p className="text-sm">
+            <div className="flex justify-center items-center space-x-2 mb-4">
+              <Heart className="h-6 w-6 text-red-500 animate-heartBeat" />
+              <p className="text-lg font-semibold">Made with love for stronger communities</p>
+              <Heart className="h-6 w-6 text-red-500 animate-heartBeat" />
+            </div>
+            <p className="text-gray-500">
               Connect with your neighbors and build mutual aid networks in your area
             </p>
           </div>

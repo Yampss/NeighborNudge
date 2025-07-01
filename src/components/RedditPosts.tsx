@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, AlertCircle } from 'lucide-react';
+import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, AlertCircle, Heart, Star } from 'lucide-react';
 
 interface RedditPost {
   id: string;
@@ -232,20 +232,31 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
     return text.substring(0, maxLength) + '...';
   };
 
+  const getFlairColor = (flair: string) => {
+    switch (flair?.toLowerCase()) {
+      case 'offer':
+        return 'bg-green-100 text-green-800 border-green-300';
+      case 'request':
+        return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'success story':
+        return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'community event':
+        return 'bg-orange-100 text-orange-800 border-orange-300';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
   if (loading) {
     return (
-      <div className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 ${className}`}>
-        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
-          <MessageSquare className="h-5 w-5 text-orange-500" />
-          <span>r/NeighborNudge Posts</span>
+      <div className={`bg-white rounded-3xl shadow-2xl p-8 border border-gray-100 ${className}`}>
+        <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center space-x-3">
+          <MessageSquare className="h-6 w-6 text-orange-500" />
+          <span className="gradient-text">r/NeighborNudge Posts</span>
         </h3>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-            </div>
+            <div key={i} className="animate-shimmer rounded-2xl h-24"></div>
           ))}
         </div>
       </div>
@@ -253,151 +264,156 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
   }
 
   return (
-    <div className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
-          <MessageSquare className="h-5 w-5 text-orange-500" />
-          <span>r/NeighborNudge Posts</span>
-        </h3>
-        <button
-          onClick={fetchPosts}
-          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-          title="Refresh posts"
-        >
-          <RefreshCw className="h-4 w-4" />
-        </button>
-      </div>
-
-      {/* Search */}
-      <form onSubmit={handleSearch} className="mb-6">
-        <div className="flex space-x-2">
-          <div className="flex-1 relative">
-            <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search posts in r/NeighborNudge..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            />
-          </div>
+    <div className={`bg-white rounded-3xl shadow-2xl p-8 border border-gray-100 relative overflow-hidden ${className}`}>
+      <div className="absolute inset-0 bg-pattern-dots opacity-5"></div>
+      <div className="relative">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-bold text-gray-900 flex items-center space-x-3">
+            <MessageSquare className="h-6 w-6 text-orange-500 animate-bounce" />
+            <span className="gradient-text">r/NeighborNudge Posts</span>
+          </h3>
           <button
-            type="submit"
-            disabled={isSearching}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+            onClick={fetchPosts}
+            className="p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-2xl transition-all duration-300 hover:scale-110"
+            title="Refresh posts"
           >
-            {isSearching ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            ) : (
-              'Search'
-            )}
+            <RefreshCw className="h-5 w-5" />
           </button>
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery('');
-                fetchPosts();
-              }}
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-            >
-              Clear
-            </button>
-          )}
         </div>
-      </form>
 
-      {/* Error message */}
-      {error && (
-        <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-          <div className="flex items-start space-x-2">
-            <AlertCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
-            <p className="text-orange-700 text-sm">{error}</p>
-          </div>
-        </div>
-      )}
-
-      {posts.length === 0 ? (
-        <div className="text-center py-8">
-          <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg">
-            {searchQuery ? 'No posts found for your search.' : 'No posts found in r/NeighborNudge.'}
-          </p>
-          <p className="text-gray-400 text-sm mt-2">
-            {searchQuery ? 'Try a different search term.' : 'Be the first to post in the subreddit!'}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4 max-h-96 overflow-y-auto">
-          {posts.map((post) => (
-            <div
-              key={post.id}
-              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="font-semibold text-gray-900 text-sm leading-tight flex-1 mr-2">
-                  {post.title}
-                </h4>
-                <a
-                  href={`https://reddit.com${post.permalink}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-orange-500 hover:text-orange-600 flex-shrink-0"
-                  title="View on Reddit"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </div>
-
-              {post.flair_text && (
-                <span className="inline-block px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full mb-2">
-                  {post.flair_text}
-                </span>
-              )}
-
-              {post.selftext && (
-                <p className="text-gray-600 text-sm mb-3 leading-relaxed">
-                  {truncateText(post.selftext)}
-                </p>
-              )}
-
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-1">
-                    <User className="h-3 w-3" />
-                    <span>u/{post.author}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{formatTimeAgo(post.created_utc)}</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-1">
-                    <ThumbsUp className="h-3 w-3" />
-                    <span>{post.score}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <MessageSquare className="h-3 w-3" />
-                    <span>{post.num_comments}</span>
-                  </div>
-                </div>
-              </div>
+        {/* Search */}
+        <form onSubmit={handleSearch} className="mb-8">
+          <div className="flex space-x-3">
+            <div className="flex-1 relative">
+              <Search className="h-5 w-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search posts in r/NeighborNudge..."
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-200 focus:border-orange-400 transition-all duration-300"
+              />
             </div>
-          ))}
-        </div>
-      )}
+            <button
+              type="submit"
+              disabled={isSearching}
+              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 disabled:opacity-50 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
+            >
+              {isSearching ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                'Search'
+              )}
+            </button>
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  fetchPosts();
+                }}
+                className="px-6 py-3 bg-gray-500 text-white rounded-2xl hover:bg-gray-600 transition-all duration-300 font-semibold"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </form>
 
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <a
-          href="https://reddit.com/r/NeighborNudge"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-orange-500 hover:text-orange-600 text-sm font-medium flex items-center space-x-1"
-        >
-          <span>Visit r/NeighborNudge</span>
-          <ExternalLink className="h-3 w-3" />
-        </a>
+        {/* Error message */}
+        {error && (
+          <div className="mb-6 p-4 bg-orange-50 border-2 border-orange-200 rounded-2xl">
+            <div className="flex items-start space-x-3">
+              <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+              <p className="text-orange-700 font-medium">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {posts.length === 0 ? (
+          <div className="text-center py-12">
+            <MessageSquare className="h-16 w-16 text-gray-400 mx-auto mb-6" />
+            <p className="text-gray-500 text-xl font-medium">
+              {searchQuery ? 'No posts found for your search.' : 'No posts found in r/NeighborNudge.'}
+            </p>
+            <p className="text-gray-400 mt-2">
+              {searchQuery ? 'Try a different search term.' : 'Be the first to post in the subreddit!'}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-6 max-h-96 overflow-y-auto custom-scrollbar">
+            {posts.map((post, index) => (
+              <div
+                key={post.id}
+                className="border-2 border-gray-200 rounded-2xl p-6 hover:bg-gray-50 transition-all duration-300 hover:scale-105 hover:shadow-lg animate-fadeInUp"
+                style={{animationDelay: `${index * 0.1}s`}}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <h4 className="font-bold text-gray-900 leading-tight flex-1 mr-3 text-lg">
+                    {post.title}
+                  </h4>
+                  <a
+                    href={`https://reddit.com${post.permalink}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-orange-500 hover:text-orange-600 flex-shrink-0 p-2 hover:bg-orange-50 rounded-xl transition-all duration-300"
+                    title="View on Reddit"
+                  >
+                    <ExternalLink className="h-5 w-5" />
+                  </a>
+                </div>
+
+                {post.flair_text && (
+                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-3 border ${getFlairColor(post.flair_text)}`}>
+                    {post.flair_text}
+                  </span>
+                )}
+
+                {post.selftext && (
+                  <p className="text-gray-600 mb-4 leading-relaxed">
+                    {truncateText(post.selftext)}
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <User className="h-4 w-4" />
+                      <span className="font-medium">u/{post.author}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Clock className="h-4 w-4" />
+                      <span>{formatTimeAgo(post.created_utc)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 bg-green-50 px-3 py-1 rounded-full">
+                      <ThumbsUp className="h-4 w-4 text-green-600" />
+                      <span className="font-semibold text-green-700">{post.score}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 bg-blue-50 px-3 py-1 rounded-full">
+                      <MessageSquare className="h-4 w-4 text-blue-600" />
+                      <span className="font-semibold text-blue-700">{post.num_comments}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-8 pt-6 border-t-2 border-gray-100">
+          <a
+            href="https://reddit.com/r/NeighborNudge"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-orange-500 hover:text-orange-600 font-bold flex items-center space-x-2 justify-center bg-orange-50 py-3 px-6 rounded-2xl hover:bg-orange-100 transition-all duration-300 hover:scale-105"
+          >
+            <Heart className="h-5 w-5" />
+            <span>Visit r/NeighborNudge</span>
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        </div>
       </div>
     </div>
   );
