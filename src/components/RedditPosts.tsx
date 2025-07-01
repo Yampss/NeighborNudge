@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, AlertCircle } from 'lucide-react';
+import { MessageSquare, ThumbsUp, ExternalLink, Clock, User, Search, RefreshCw, Info } from 'lucide-react';
 
 export interface RedditPost {
   id: string;
@@ -22,7 +22,6 @@ interface RedditPostsProps {
 export default function RedditPosts({ className = '' }: RedditPostsProps) {
   const [posts, setPosts] = useState<RedditPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
@@ -32,41 +31,12 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
 
   const fetchPosts = async () => {
     setLoading(true);
-    setError(null);
     try {
-      // Try to fetch from Reddit API directly
-      const response = await fetch('https://www.reddit.com/r/NeighborNudge/hot.json?limit=20');
+      // Simulate loading delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!data.data || !data.data.children) {
-        throw new Error('Invalid response format from Reddit API');
-      }
-      
-      const redditPosts = data.data.children.map((child: any) => ({
-        id: child.data.id,
-        title: child.data.title,
-        author: child.data.author,
-        score: child.data.score,
-        num_comments: child.data.num_comments,
-        created_utc: child.data.created_utc,
-        url: child.data.url,
-        selftext: child.data.selftext,
-        permalink: child.data.permalink,
-        subreddit: child.data.subreddit,
-        flair_text: child.data.link_flair_text
-      }));
-      
-      setPosts(redditPosts);
-    } catch (error) {
-      console.error('Error fetching Reddit posts:', error);
-      setError('Reddit posts are not available in the deployed version due to CORS restrictions. This feature works in development mode only.');
-      // Set some sample posts for demonstration
-      setPosts([
+      // Use sample data since Reddit API doesn't allow direct browser requests
+      const samplePosts = [
         {
           id: 'sample1',
           title: 'Welcome to NeighborNudge Community!',
@@ -75,7 +45,7 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
           num_comments: 8,
           created_utc: Date.now() / 1000 - 3600,
           url: 'https://reddit.com/r/NeighborNudge',
-          selftext: 'This is a sample post. In development mode, you would see real Reddit posts here.',
+          selftext: 'Welcome to our mutual aid community! This is where neighbors help neighbors. Share your offers to help, find ways to contribute, and build stronger community connections.',
           permalink: '/r/NeighborNudge/comments/sample1/',
           subreddit: 'NeighborNudge',
           flair_text: 'Welcome'
@@ -88,12 +58,56 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
           num_comments: 5,
           created_utc: Date.now() / 1000 - 7200,
           url: 'https://reddit.com/r/NeighborNudge',
-          selftext: 'Tips for beginners on how to help your community.',
+          selftext: 'New to mutual aid? Here are some tips: Start small, be consistent, focus on your immediate community, and remember that every act of kindness matters.',
           permalink: '/r/NeighborNudge/comments/sample2/',
           subreddit: 'NeighborNudge',
           flair_text: 'Guide'
+        },
+        {
+          id: 'sample3',
+          title: '[OFFER] Free tutoring for kids in math and science',
+          author: 'science_teacher',
+          score: 12,
+          num_comments: 3,
+          created_utc: Date.now() / 1000 - 10800,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'I\'m a retired science teacher offering free tutoring for elementary and middle school students. Available weekends in the downtown area.',
+          permalink: '/r/NeighborNudge/comments/sample3/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Offer'
+        },
+        {
+          id: 'sample4',
+          title: '[REQUEST] Need help moving furniture this weekend',
+          author: 'moving_neighbor',
+          score: 8,
+          num_comments: 6,
+          created_utc: Date.now() / 1000 - 14400,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'Moving to a new apartment this Saturday and could use some help with heavy furniture. Pizza and drinks provided!',
+          permalink: '/r/NeighborNudge/comments/sample4/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Request'
+        },
+        {
+          id: 'sample5',
+          title: 'Community garden project update',
+          author: 'green_thumb',
+          score: 15,
+          num_comments: 4,
+          created_utc: Date.now() / 1000 - 18000,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'Our community garden is thriving! Thanks to everyone who has contributed time, tools, and expertise. Next workday is this Sunday.',
+          permalink: '/r/NeighborNudge/comments/sample5/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Update'
         }
-      ]);
+      ];
+      
+      setPosts(samplePosts);
+    } catch (error) {
+      console.error('Error fetching Reddit posts:', error);
+      setPosts([]);
     } finally {
       setLoading(false);
     }
@@ -107,38 +121,48 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
     }
 
     setIsSearching(true);
-    setError(null);
     try {
-      const response = await fetch(`https://www.reddit.com/r/NeighborNudge/search.json?q=${encodeURIComponent(searchQuery)}&restrict_sr=1&limit=20`);
+      // Simulate search delay
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      // Filter sample posts based on search query
+      const allPosts = [
+        {
+          id: 'sample1',
+          title: 'Welcome to NeighborNudge Community!',
+          author: 'community_mod',
+          score: 25,
+          num_comments: 8,
+          created_utc: Date.now() / 1000 - 3600,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'Welcome to our mutual aid community! This is where neighbors help neighbors.',
+          permalink: '/r/NeighborNudge/comments/sample1/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Welcome'
+        },
+        {
+          id: 'sample2',
+          title: 'How to get started with mutual aid',
+          author: 'helpful_neighbor',
+          score: 18,
+          num_comments: 5,
+          created_utc: Date.now() / 1000 - 7200,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'New to mutual aid? Here are some tips for beginners.',
+          permalink: '/r/NeighborNudge/comments/sample2/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Guide'
+        }
+      ];
       
-      const data = await response.json();
+      const filteredPosts = allPosts.filter(post => 
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.selftext.toLowerCase().includes(searchQuery.toLowerCase())
+      );
       
-      if (!data.data || !data.data.children) {
-        throw new Error('Invalid response format from Reddit API');
-      }
-      
-      const searchResults = data.data.children.map((child: any) => ({
-        id: child.data.id,
-        title: child.data.title,
-        author: child.data.author,
-        score: child.data.score,
-        num_comments: child.data.num_comments,
-        created_utc: child.data.created_utc,
-        url: child.data.url,
-        selftext: child.data.selftext,
-        permalink: child.data.permalink,
-        subreddit: child.data.subreddit,
-        flair_text: child.data.link_flair_text
-      }));
-      
-      setPosts(searchResults);
+      setPosts(filteredPosts);
     } catch (error) {
       console.error('Error searching Reddit posts:', error);
-      setError('Search is not available in the deployed version due to CORS restrictions.');
     } finally {
       setIsSearching(false);
     }
@@ -198,16 +222,17 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
         </button>
       </div>
 
-      {error && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-          <div className="flex items-start space-x-3">
-            <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
-            <div>
-              <p className="text-amber-800 text-sm">{error}</p>
-            </div>
+      {/* Demo Notice */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+        <div className="flex items-start space-x-2">
+          <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+          <div>
+            <p className="text-blue-800 text-sm">
+              <strong>Demo Mode:</strong> Showing sample posts. In a production environment, this would connect to Reddit's API through a backend service.
+            </p>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Search */}
       <form onSubmit={handleSearch} className="mb-6">
