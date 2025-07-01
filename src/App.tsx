@@ -5,6 +5,8 @@ import PostTask from './components/PostTask';
 import BrowseTasks from './components/BrowseTasks';
 import MyTasks from './components/MyTasks';
 import Leaderboard from './components/Leaderboard';
+import RedditCallback from './components/RedditCallback';
+import RedditAuthButton from './components/RedditAuthButton';
 import { supabase } from './lib/supabase';
 import type { Task, User as UserType } from './types';
 
@@ -17,10 +19,16 @@ function App() {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [currentUser, setCurrentUser] = useState<string>('');
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [isRedditAuthenticated, setIsRedditAuthenticated] = useState(false);
+
+  // Check if this is the Reddit callback page
+  const isRedditCallback = window.location.pathname === '/reddit-callback';
 
   useEffect(() => {
-    checkConnection();
-  }, []);
+    if (!isRedditCallback) {
+      checkConnection();
+    }
+  }, [isRedditCallback]);
 
   const checkConnection = async () => {
     try {
@@ -259,7 +267,13 @@ function App() {
       case 'home':
         return <HomePage onNavigate={setActiveTab} />;
       case 'post':
-        return <PostTask onSubmit={handleTaskSubmit} currentUser={currentUser} setCurrentUser={setCurrentUser} isConnected={isConnected} />;
+        return <PostTask 
+          onSubmit={handleTaskSubmit} 
+          currentUser={currentUser} 
+          setCurrentUser={setCurrentUser} 
+          isConnected={isConnected}
+          isRedditAuthenticated={isRedditAuthenticated}
+        />;
       case 'browse':
         return <BrowseTasks tasks={tasks} loading={loading} onClaimTask={handleClaimTask} currentUser={currentUser} setCurrentUser={setCurrentUser} isConnected={isConnected} />;
       case 'my-tasks':
@@ -271,22 +285,32 @@ function App() {
     }
   };
 
+  // Render Reddit callback page
+  if (isRedditCallback) {
+    return <RedditCallback />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b-2 border-primary-100">
         <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-center space-x-3">
-            <Heart className="h-8 w-8 text-accent-500" />
-            <h1 className="text-3xl font-bold text-gray-900">NeighborNudge</h1>
-            <Heart className="h-8 w-8 text-primary-500" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center space-x-3 flex-1">
+              <Heart className="h-8 w-8 text-accent-500" />
+              <h1 className="text-3xl font-bold text-gray-900">NeighborNudge</h1>
+              <Heart className="h-8 w-8 text-primary-500" />
+            </div>
+            <div className="flex items-center space-x-4">
+              <RedditAuthButton onAuthChange={setIsRedditAuthenticated} />
+            </div>
           </div>
           <p className="text-center text-gray-600 mt-2">
             Building stronger communities through mutual aid
           </p>
           {/* Connection Status Indicator */}
-          {isConnected !== null && (
-            <div className="text-center mt-2">
+          <div className="flex items-center justify-center space-x-4 mt-2">
+            {isConnected !== null && (
               <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                 isConnected 
                   ? 'bg-green-100 text-green-800' 
@@ -294,8 +318,13 @@ function App() {
               }`}>
                 {isConnected ? '● Database Connected' : '● Database Disconnected'}
               </span>
-            </div>
-          )}
+            )}
+            {isRedditAuthenticated && (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                ● Reddit Connected
+              </span>
+            )}
+          </div>
         </div>
       </header>
 

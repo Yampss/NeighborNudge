@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { MapPin, User, MessageCircle, Send, AlertCircle, ExternalLink, CheckCircle } from 'lucide-react';
-import { redditAPI } from '../lib/reddit';
+import { MapPin, User, MessageCircle, Send, AlertCircle, ExternalLink, CheckCircle, Loader } from 'lucide-react';
+import { redditAuth } from '../lib/redditAuth';
 import type { Task } from '../types';
 
 interface PostTaskProps {
@@ -8,15 +8,20 @@ interface PostTaskProps {
   currentUser: string;
   setCurrentUser: (user: string) => void;
   isConnected: boolean | null;
+  isRedditAuthenticated: boolean;
 }
 
-export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConnected }: PostTaskProps) {
+export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConnected, isRedditAuthenticated }: PostTaskProps) {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [contactMethod, setContactMethod] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showRedditOption, setShowRedditOption] = useState(false);
   const [submittedTask, setSubmittedTask] = useState<Task | null>(null);
+  const [autoPostToReddit, setAutoPostToReddit] = useState(false);
+  const [redditPostStatus, setRedditPostStatus] = useState<'idle' | 'posting' | 'success' | 'error'>('idle');
+  const [redditPostUrl, setRedditPostUrl] = useState<string>('');
+  const [redditError, setRedditError] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +30,9 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
     }
 
     setIsSubmitting(true);
+    setRedditPostStatus('idle');
+    setRedditError('');
+    
     try {
       const taskData = {
         description: description.trim(),
@@ -37,7 +45,35 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
       
       if (createdTask) {
         setSubmittedTask(createdTask);
-        setShowRedditOption(true);
+        
+        // If auto-post to Reddit is enabled and user is authenticated
+        if (autoPostToReddit && isRedditAuthenticated) {
+          setRedditPostStatus('posting');
+          try {
+            const { title, text } = redditAuth.generatePostContent({
+              description: createdTask.description,
+              location: createdTask.location,
+              proposer: createdTask.proposer,
+              contact_method: createdTask.contact_method
+            });
+
+            const result = await redditAuth.submitPost(title, text);
+            
+            if (result.success && result.url) {
+              setRedditPostStatus('success');
+              setRedditPostUrl(result.url);
+            } else {
+              setRedditPostStatus('error');
+              setRedditError(result.error || 'Failed to post to Reddit');
+            }
+          } catch (error) {
+            setRedditPostStatus('error');
+            setRedditError('An error occurred while posting to Reddit');
+            console.error('Reddit post error:', error);
+          }
+        } else {
+          setShowRedditOption(true);
+        }
         
         // Reset form
         setDescription('');
@@ -51,24 +87,43 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
     }
   };
 
-  const handlePostToReddit = () => {
-    if (submittedTask) {
-      const redditUrl = redditAPI.generateRedditPostUrl({
+  const handlePostToReddit = async () => {
+    if (!submittedTask) return;
+    
+    setRedditPostStatus('posting');
+    try {
+      const { title, text } = redditAuth.generatePostContent({
         description: submittedTask.description,
         location: submittedTask.location,
         proposer: submittedTask.proposer,
         contact_method: submittedTask.contact_method
       });
-      window.open(redditUrl, '_blank');
+
+      const result = await redditAuth.submitPost(title, text);
+      
+      if (result.success && result.url) {
+        setRedditPostStatus('success');
+        setRedditPostUrl(result.url);
+      } else {
+        setRedditPostStatus('error');
+        setRedditError(result.error || 'Failed to post to Reddit');
+      }
+    } catch (error) {
+      setRedditPostStatus('error');
+      setRedditError('An error occurred while posting to Reddit');
+      console.error('Reddit post error:', error);
     }
   };
 
   const handleDismissRedditOption = () => {
     setShowRedditOption(false);
     setSubmittedTask(null);
+    setRedditPostStatus('idle');
+    setRedditError('');
+    setRedditPostUrl('');
   };
 
-  if (showRedditOption && submittedTask) {
+  if ((showRedditOption || redditPostStatus !== 'idle') && submittedTask) {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
@@ -76,7 +131,7 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Task Posted Successfully!</h2>
             <p className="text-gray-600 mb-6">
-              Your task has been added to NeighborNudge. Would you like to also share it on Reddit to reach more people?
+              Your task has been added to NeighborNudge.
             </p>
             
             <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
@@ -85,25 +140,88 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
               <p className="text-sm text-gray-600">📍 {submittedTask.location}</p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={handlePostToReddit}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center justify-center space-x-2"
-              >
-                <ExternalLink className="h-5 w-5" />
-                <span>Post to r/NeighborNudge</span>
-              </button>
-              <button
-                onClick={handleDismissRedditOption}
-                className="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-200"
-              >
-                Skip for Now
-              </button>
-            </div>
+            {/* Reddit posting section */}
+            {isRedditAuthenticated ? (
+              <div className="space-y-4">
+                {redditPostStatus === 'posting' && (
+                  <div className="flex items-center justify-center space-x-2 text-orange-600">
+                    <Loader className="h-5 w-5 animate-spin" />
+                    <span>Posting to Reddit...</span>
+                  </div>
+                )}
 
-            <p className="text-sm text-gray-500 mt-4">
-              Posting to Reddit will open a new tab with a pre-filled post. You can edit it before submitting.
-            </p>
+                {redditPostStatus === 'success' && redditPostUrl && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-2 text-green-800 mb-2">
+                      <CheckCircle className="h-5 w-5" />
+                      <span className="font-semibold">Successfully posted to Reddit!</span>
+                    </div>
+                    <a
+                      href={redditPostUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-orange-600 hover:text-orange-700 flex items-center space-x-1"
+                    >
+                      <span>View your post on r/NeighborNudge</span>
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                )}
+
+                {redditPostStatus === 'error' && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-2 text-red-800 mb-2">
+                      <AlertCircle className="h-5 w-5" />
+                      <span className="font-semibold">Failed to post to Reddit</span>
+                    </div>
+                    <p className="text-red-700 text-sm mb-3">{redditError}</p>
+                    <button
+                      onClick={handlePostToReddit}
+                      className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                )}
+
+                {redditPostStatus === 'idle' && showRedditOption && (
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button
+                      onClick={handlePostToReddit}
+                      className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center justify-center space-x-2"
+                    >
+                      <ExternalLink className="h-5 w-5" />
+                      <span>Post to r/NeighborNudge</span>
+                    </button>
+                    <button
+                      onClick={handleDismissRedditOption}
+                      className="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-200"
+                    >
+                      Skip for Now
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <p className="text-orange-800 mb-3">
+                  Connect your Reddit account to automatically post tasks to r/NeighborNudge
+                </p>
+                <button
+                  onClick={() => window.location.href = redditAuth.getAuthUrl()}
+                  className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                >
+                  Connect Reddit Account
+                </button>
+              </div>
+            )}
+
+            <button
+              onClick={handleDismissRedditOption}
+              className="mt-6 text-gray-500 hover:text-gray-700 text-sm"
+            >
+              Continue to Browse Tasks
+            </button>
           </div>
         </div>
       </div>
@@ -130,6 +248,30 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
                 <p className="text-blue-700 text-sm mt-1">
                   To save tasks, you need to connect to Supabase. Click the "Connect to Supabase" button in the top right corner to set up your database connection.
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reddit Auto-Post Option */}
+        {isRedditAuthenticated && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start space-x-3">
+              <ExternalLink className="h-5 w-5 text-orange-600 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-orange-900">Reddit Integration</h3>
+                <p className="text-orange-700 text-sm mt-1 mb-3">
+                  Automatically post your task to r/NeighborNudge to reach more people in your community.
+                </p>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={autoPostToReddit}
+                    onChange={(e) => setAutoPostToReddit(e.target.checked)}
+                    className="rounded border-orange-300 text-orange-600 focus:ring-orange-500"
+                  />
+                  <span className="text-orange-800 text-sm">Automatically post to Reddit</span>
+                </label>
               </div>
             </div>
           </div>
@@ -227,17 +369,25 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
           </button>
         </form>
 
-        <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-          <div className="flex items-start space-x-3">
-            <ExternalLink className="h-5 w-5 text-orange-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-orange-900">Share on Reddit</h3>
-              <p className="text-orange-700 text-sm mt-1">
-                After posting your task, you'll have the option to share it on r/NeighborNudge to reach more people in your community.
-              </p>
+        {!isRedditAuthenticated && (
+          <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <ExternalLink className="h-5 w-5 text-orange-600 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-orange-900">Connect Reddit for Auto-Posting</h3>
+                <p className="text-orange-700 text-sm mt-1 mb-3">
+                  Connect your Reddit account to automatically post tasks to r/NeighborNudge and reach more people in your community.
+                </p>
+                <button
+                  onClick={() => window.location.href = redditAuth.getAuthUrl()}
+                  className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm"
+                >
+                  Connect Reddit Account
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
