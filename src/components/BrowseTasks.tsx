@@ -101,6 +101,11 @@ export default function BrowseTasks({ tasks, loading, onClaimTask, currentUser, 
               placeholder="Enter your Reddit username"
               className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
+            {currentUser && (
+              <p className="text-sm text-blue-600 mt-1">
+                This username is shared across all sections of the app
+              </p>
+            )}
           </div>
 
           {/* Filters */}
@@ -180,6 +185,12 @@ export default function BrowseTasks({ tasks, loading, onClaimTask, currentUser, 
                         <MessageCircle className="h-4 w-4" />
                         <span>{task.contact_method}</span>
                       </div>
+                      {task.claimer && (
+                        <div className="flex items-center space-x-1">
+                          <User className="h-4 w-4" />
+                          <span>Claimed by u/{task.claimer}</span>
+                        </div>
+                      )}
                     </div>
 
                     {task.status === 'open' && currentUser && currentUser !== task.proposer && (
@@ -189,6 +200,18 @@ export default function BrowseTasks({ tasks, loading, onClaimTask, currentUser, 
                       >
                         Claim This Task
                       </button>
+                    )}
+
+                    {task.status === 'open' && currentUser === task.proposer && (
+                      <div className="text-sm text-gray-500 italic">
+                        This is your task - others can claim it
+                      </div>
+                    )}
+
+                    {!currentUser && task.status === 'open' && (
+                      <div className="text-sm text-gray-500 italic">
+                        Enter your username above to claim tasks
+                      </div>
                     )}
                   </div>
                   

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { MapPin, User, MessageCircle, Send, AlertCircle } from 'lucide-react';
+import { MapPin, User, MessageCircle, Send, AlertCircle, ExternalLink, CheckCircle } from 'lucide-react';
+import { redditAPI } from '../lib/reddit';
 import type { Task } from '../types';
 
 interface PostTaskProps {
-  onSubmit: (task: Omit<Task, 'task_id' | 'created_at' | 'status'>) => void;
+  onSubmit: (task: Omit<Task, 'task_id' | 'created_at' | 'status'>) => Promise<Task | undefined>;
   currentUser: string;
   setCurrentUser: (user: string) => void;
   isConnected: boolean | null;
@@ -14,6 +15,8 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
   const [location, setLocation] = useState('');
   const [contactMethod, setContactMethod] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showRedditOption, setShowRedditOption] = useState(false);
+  const [submittedTask, setSubmittedTask] = useState<Task | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,23 +26,89 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
 
     setIsSubmitting(true);
     try {
-      await onSubmit({
+      const taskData = {
         description: description.trim(),
         location: location.trim(),
         contact_method: contactMethod.trim(),
         proposer: currentUser.trim(),
-      });
+      };
+
+      const createdTask = await onSubmit(taskData);
       
-      // Reset form
-      setDescription('');
-      setLocation('');
-      setContactMethod('');
+      if (createdTask) {
+        setSubmittedTask(createdTask);
+        setShowRedditOption(true);
+        
+        // Reset form
+        setDescription('');
+        setLocation('');
+        setContactMethod('');
+      }
     } catch (error) {
       console.error('Error submitting task:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const handlePostToReddit = () => {
+    if (submittedTask) {
+      const redditUrl = redditAPI.generateRedditPostUrl({
+        description: submittedTask.description,
+        location: submittedTask.location,
+        proposer: submittedTask.proposer,
+        contact_method: submittedTask.contact_method
+      });
+      window.open(redditUrl, '_blank');
+    }
+  };
+
+  const handleDismissRedditOption = () => {
+    setShowRedditOption(false);
+    setSubmittedTask(null);
+  };
+
+  if (showRedditOption && submittedTask) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+          <div className="text-center">
+            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Task Posted Successfully!</h2>
+            <p className="text-gray-600 mb-6">
+              Your task has been added to NeighborNudge. Would you like to also share it on Reddit to reach more people?
+            </p>
+            
+            <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+              <h3 className="font-semibold text-gray-900 mb-2">Your Task:</h3>
+              <p className="text-gray-700 mb-2">{submittedTask.description}</p>
+              <p className="text-sm text-gray-600">📍 {submittedTask.location}</p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={handlePostToReddit}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <ExternalLink className="h-5 w-5" />
+                <span>Post to r/NeighborNudge</span>
+              </button>
+              <button
+                onClick={handleDismissRedditOption}
+                className="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-200"
+              >
+                Skip for Now
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-500 mt-4">
+              Posting to Reddit will open a new tab with a pre-filled post. You can edit it before submitting.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -82,6 +151,11 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
               required
             />
+            {currentUser && (
+              <p className="text-sm text-blue-600 mt-1">
+                This username will be used across all sections of the app
+              </p>
+            )}
           </div>
 
           <div>
@@ -152,6 +226,18 @@ export default function PostTask({ onSubmit, currentUser, setCurrentUser, isConn
             )}
           </button>
         </form>
+
+        <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <div className="flex items-start space-x-3">
+            <ExternalLink className="h-5 w-5 text-orange-600 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-orange-900">Share on Reddit</h3>
+              <p className="text-orange-700 text-sm mt-1">
+                After posting your task, you'll have the option to share it on r/NeighborNudge to reach more people in your community.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

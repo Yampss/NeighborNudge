@@ -87,6 +87,31 @@ class RedditAPI {
       throw new Error('Failed to search');
     }
   }
+
+  // Generate Reddit post URL for manual posting
+  generateRedditPostUrl(task: { description: string; location: string; proposer: string; contact_method: string }): string {
+    const title = `[OFFER] ${task.description} - ${task.location}`;
+    const body = `Hi r/NeighborNudge!
+
+I'm offering to help with: ${task.description}
+
+📍 **Location:** ${task.location}
+👤 **Posted by:** u/${task.proposer}
+📞 **Contact:** ${task.contact_method}
+
+This task was posted through NeighborNudge - a platform for community mutual aid. If you're interested in helping or need similar assistance, check out our app!
+
+---
+*This post was generated from NeighborNudge. Join our community to find more ways to help your neighbors!*`;
+
+    const params = new URLSearchParams({
+      title: title,
+      text: body,
+      subreddit: 'NeighborNudge'
+    });
+
+    return `https://www.reddit.com/r/NeighborNudge/submit?${params.toString()}`;
+  }
 }
 
 export const redditAPI = new RedditAPI();

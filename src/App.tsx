@@ -141,6 +141,9 @@ function App() {
       setTasks(prev => [data, ...prev]);
       fetchUsers(); // Refresh leaderboard
       setActiveTab('browse'); // Navigate to browse tasks
+      
+      // Return the created task data for Reddit posting
+      return data;
     } catch (error) {
       console.error('Error submitting task:', error);
       if (error instanceof Error) {
@@ -157,18 +160,58 @@ function App() {
 
   const handleClaimTask = async (taskId: string, claimerUsername: string) => {
     try {
-      const { error } = await supabase
+      // First, check if the task exists and is still open
+      const { data: taskCheck, error: checkError } = await supabase
         .from('tasks')
-        .update({ status: 'in_progress', claimer: claimerUsername })
-        .eq('task_id', taskId);
+        .select('status, proposer')
+        .eq('task_id', taskId)
+        .single();
 
-      if (error) {
-        console.error('Supabase error:', error);
-        alert('Error claiming task. Please try again.');
+      if (checkError) {
+        console.error('Error checking task:', checkError);
+        alert('Error checking task status. Please try again.');
         return;
       }
 
+      if (!taskCheck) {
+        alert('Task not found.');
+        return;
+      }
+
+      if (taskCheck.status !== 'open') {
+        alert('This task is no longer available.');
+        fetchTasks(); // Refresh to show current status
+        return;
+      }
+
+      if (taskCheck.proposer === claimerUsername) {
+        alert('You cannot claim your own task.');
+        return;
+      }
+
+      // Update the task status and claimer
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'in_progress', 
+          claimer: claimerUsername 
+        })
+        .eq('task_id', taskId)
+        .eq('status', 'open'); // Additional check to prevent race conditions
+
+      if (error) {
+        console.error('Supabase error:', error);
+        if (error.message.includes('permission')) {
+          alert('Permission denied. Please check your database configuration.');
+        } else {
+          alert(`Error claiming task: ${error.message}`);
+        }
+        return;
+      }
+
+      // Refresh tasks to show updated status
       fetchTasks();
+      alert('Task claimed successfully! You can now start working on it.');
     } catch (error) {
       console.error('Error claiming task:', error);
       alert('Error claiming task. Please check your connection and try again.');
@@ -318,6 +361,19 @@ function App() {
           </div>
         </div>
       </nav>
+
+      {/* Global Username Notice */}
+      {currentUser && (
+        <div className="bg-blue-50 border-b border-blue-200">
+          <div className="max-w-6xl mx-auto px-4 py-2">
+            <p className="text-center text-blue-700 text-sm">
+              <Users className="h-4 w-4 inline mr-1" />
+              Logged in as: <span className="font-semibold">u/{currentUser}</span>
+              <span className="text-blue-600 ml-2">(This username is used across all sections)</span>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
