@@ -86,7 +86,25 @@ function App() {
   };
 
   const handleTaskSubmit = async (taskData: Omit<Task, 'task_id' | 'created_at' | 'status'>) => {
+    // Check connection before attempting to submit
+    if (isConnected === false) {
+      alert('Database connection is not available. Please connect to Supabase first.');
+      return;
+    }
+
     try {
+      // Test connection again before submitting
+      const { error: connectionError } = await supabase
+        .from('tasks')
+        .select('count', { count: 'exact', head: true });
+
+      if (connectionError) {
+        console.error('Connection test failed:', connectionError);
+        setIsConnected(false);
+        alert('Database connection failed. Please check your Supabase configuration and try again.');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('tasks')
         .insert([{ ...taskData, status: 'open' }])
@@ -95,7 +113,13 @@ function App() {
 
       if (error) {
         console.error('Supabase error:', error);
-        alert('Error submitting task. Please check your connection and try again.');
+        if (error.message.includes('JWT')) {
+          alert('Authentication error. Please check your Supabase configuration.');
+        } else if (error.message.includes('permission')) {
+          alert('Permission denied. Please check your database policies.');
+        } else {
+          alert(`Error submitting task: ${error.message}`);
+        }
         return;
       }
 
@@ -119,7 +143,15 @@ function App() {
       setActiveTab('browse'); // Navigate to browse tasks
     } catch (error) {
       console.error('Error submitting task:', error);
-      alert('Error submitting task. Please try again.');
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          alert('Network error. Please check your internet connection and try again.');
+        } else {
+          alert(`Error submitting task: ${error.message}`);
+        }
+      } else {
+        alert('Error submitting task. Please check your connection and try again.');
+      }
     }
   };
 
@@ -209,6 +241,18 @@ function App() {
           <p className="text-center text-gray-600 mt-2">
             Building stronger communities through mutual aid
           </p>
+          {/* Connection Status Indicator */}
+          {isConnected !== null && (
+            <div className="text-center mt-2">
+              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                isConnected 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {isConnected ? '● Database Connected' : '● Database Disconnected'}
+              </span>
+            </div>
+          )}
         </div>
       </header>
 
