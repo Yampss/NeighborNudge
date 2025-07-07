@@ -76,80 +76,81 @@ export default function RedditPosts({ className = '' }: RedditPostsProps) {
     } catch (error) {
       console.error('Error fetching Reddit posts:', error);
       
-      // In production, if Reddit API fails due to CORS, show sample posts
-      if (!window.location.hostname.includes('localhost')) {
-        const samplePosts: RedditPost[] = [
-          {
-            id: 'sample1',
-            title: '[OFFER] Free grocery delivery for seniors in downtown area',
-            author: 'helpfulneighbor23',
-            score: 45,
-            num_comments: 12,
-            created_utc: Date.now() / 1000 - 3600,
-            url: 'https://reddit.com/r/NeighborNudge',
-            selftext: 'I have a car and some free time this weekend. Happy to help seniors or anyone who needs grocery delivery in the downtown area. Just DM me!',
-            permalink: '/r/NeighborNudge/comments/sample1/',
-            subreddit: 'NeighborNudge',
-            flair_text: 'Offer'
-          },
-          {
-            id: 'sample2',
-            title: '[REQUEST] Looking for someone to walk my dog while I recover',
-            author: 'dogowner42',
-            score: 32,
-            num_comments: 8,
-            created_utc: Date.now() / 1000 - 7200,
-            url: 'https://reddit.com/r/NeighborNudge',
-            selftext: 'I recently had surgery and need help walking my golden retriever for the next two weeks. He\'s very friendly and well-behaved.',
-            permalink: '/r/NeighborNudge/comments/sample2/',
-            subreddit: 'NeighborNudge',
-            flair_text: 'Request'
-          },
-          {
-            id: 'sample3',
-            title: '[SUCCESS] Thank you to everyone who helped with my move!',
-            author: 'gratefulrenter',
-            score: 78,
-            num_comments: 15,
-            created_utc: Date.now() / 1000 - 10800,
-            url: 'https://reddit.com/r/NeighborNudge',
-            selftext: 'This community is amazing! Five neighbors showed up to help me move last weekend. The mutual aid network really works!',
-            permalink: '/r/NeighborNudge/comments/sample3/',
-            subreddit: 'NeighborNudge',
-            flair_text: 'Success Story'
-          },
-          {
-            id: 'sample4',
-            title: '[OFFER] Free tutoring for high school math and science',
-            author: 'teachervolunteer',
-            score: 56,
-            num_comments: 9,
-            created_utc: Date.now() / 1000 - 14400,
-            url: 'https://reddit.com/r/NeighborNudge',
-            selftext: 'I\'m a retired teacher and would love to help students with math and science. Available weekday evenings and weekends.',
-            permalink: '/r/NeighborNudge/comments/sample4/',
-            subreddit: 'NeighborNudge',
-            flair_text: 'Offer'
-          },
-          {
-            id: 'sample5',
-            title: '[COMMUNITY] Monthly NeighborNudge meetup this Saturday!',
-            author: 'communityleader',
-            score: 89,
-            num_comments: 23,
-            created_utc: Date.now() / 1000 - 18000,
-            url: 'https://reddit.com/r/NeighborNudge',
-            selftext: 'Join us at Central Park this Saturday at 2 PM for our monthly community meetup. Great chance to meet your neighbors and discuss local mutual aid initiatives!',
-            permalink: '/r/NeighborNudge/comments/sample5/',
-            subreddit: 'NeighborNudge',
-            flair_text: 'Community Event'
-          }
-        ];
-        
-        setPosts(samplePosts);
-        setError('Live Reddit posts unavailable due to browser restrictions. Showing sample community posts.');
+      // Show sample posts when Reddit API fails, regardless of environment
+      const samplePosts: RedditPost[] = [
+        {
+          id: 'sample1',
+          title: '[OFFER] Free grocery delivery for seniors in downtown area',
+          author: 'helpfulneighbor23',
+          score: 45,
+          num_comments: 12,
+          created_utc: Date.now() / 1000 - 3600,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'I have a car and some free time this weekend. Happy to help seniors or anyone who needs grocery delivery in the downtown area. Just DM me!',
+          permalink: '/r/NeighborNudge/comments/sample1/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Offer'
+        },
+        {
+          id: 'sample2',
+          title: '[REQUEST] Looking for someone to walk my dog while I recover',
+          author: 'dogowner42',
+          score: 32,
+          num_comments: 8,
+          created_utc: Date.now() / 1000 - 7200,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'I recently had surgery and need help walking my golden retriever for the next two weeks. He\'s very friendly and well-behaved.',
+          permalink: '/r/NeighborNudge/comments/sample2/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Request'
+        },
+        {
+          id: 'sample3',
+          title: '[SUCCESS] Thank you to everyone who helped with my move!',
+          author: 'gratefulrenter',
+          score: 78,
+          num_comments: 15,
+          created_utc: Date.now() / 1000 - 10800,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'This community is amazing! Five neighbors showed up to help me move last weekend. The mutual aid network really works!',
+          permalink: '/r/NeighborNudge/comments/sample3/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Success Story'
+        },
+        {
+          id: 'sample4',
+          title: '[OFFER] Free tutoring for high school math and science',
+          author: 'teachervolunteer',
+          score: 56,
+          num_comments: 9,
+          created_utc: Date.now() / 1000 - 14400,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'I\'m a retired teacher and would love to help students with math and science. Available weekday evenings and weekends.',
+          permalink: '/r/NeighborNudge/comments/sample4/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Offer'
+        },
+        {
+          id: 'sample5',
+          title: '[COMMUNITY] Monthly NeighborNudge meetup this Saturday!',
+          author: 'communityleader',
+          score: 89,
+          num_comments: 23,
+          created_utc: Date.now() / 1000 - 18000,
+          url: 'https://reddit.com/r/NeighborNudge',
+          selftext: 'Join us at Central Park this Saturday at 2 PM for our monthly community meetup. Great chance to meet your neighbors and discuss local mutual aid initiatives!',
+          permalink: '/r/NeighborNudge/comments/sample5/',
+          subreddit: 'NeighborNudge',
+          flair_text: 'Community Event'
+        }
+      ];
+      
+      setPosts(samplePosts);
+      
+      if (window.location.hostname.includes('localhost')) {
+        setError('Unable to load live Reddit posts. Showing sample community posts instead.');
       } else {
-        setError('Unable to load Reddit posts. This may be due to network connectivity or Reddit API limitations.');
+        setError('Live Reddit posts unavailable due to browser restrictions. Showing sample community posts.');
       }
     } finally {
       setLoading(false);
