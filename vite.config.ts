@@ -12,7 +12,7 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/reddit-api/, ''),
         headers: {
-          'User-Agent': 'web:NeighborNudge:v1.0.0 (by /u/neighbornudge)'
+          'User-Agent': 'Mozilla/5.0 (compatible; NeighborNudge/1.0; +https://neighbornudge.app)'
         }
       },
       '/reddit-oauth': {
@@ -21,7 +21,7 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/reddit-oauth/, ''),
         headers: {
-          'User-Agent': 'web:NeighborNudge:v1.0.0 (by /u/neighbornudge)'
+          'User-Agent': 'Mozilla/5.0 (compatible; NeighborNudge/1.0; +https://neighbornudge.app)'
         }
       }
     }
