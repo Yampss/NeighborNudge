@@ -9,7 +9,7 @@ export default defineConfig({
       '/reddit-api': {
         target: 'https://www.reddit.com',
         changeOrigin: true,
-        secure: false,
+        secure: true,
         rewrite: (path) => path.replace(/^\/reddit-api/, ''),
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; NeighborNudge/1.0; +https://neighbornudge.app)'
@@ -18,7 +18,7 @@ export default defineConfig({
       '/reddit-oauth': {
         target: 'https://www.reddit.com',
         changeOrigin: true,
-        secure: false,
+        secure: true,
         rewrite: (path) => path.replace(/^\/reddit-oauth/, ''),
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; NeighborNudge/1.0; +https://neighbornudge.app)'
