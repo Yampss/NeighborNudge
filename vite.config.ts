@@ -12,7 +12,7 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path.replace(/^\/reddit-api/, ''),
         headers: {
-          'User-Agent': 'NeighborNudgeApp/1.0 (by u/YourRedditUsername)'
+          'User-Agent': 'NeighborNudgeApp/1.0 (by u/ActualRedditUser)'
         }
       },
       '/reddit-oauth': {
@@ -21,7 +21,7 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path.replace(/^\/reddit-oauth/, ''),
         headers: {
-          'User-Agent': 'NeighborNudgeApp/1.0 (by u/YourRedditUsername)'
+          'User-Agent': 'NeighborNudgeApp/1.0 (by u/ActualRedditUser)'
         }
       }
     }
